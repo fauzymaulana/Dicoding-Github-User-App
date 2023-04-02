@@ -19,12 +19,19 @@ ext {
     kotlin_version = '1.5.21'
     realm_version = '1.0.2'
     rxjava_version = '2.2.21'
-    rxandroid_version = '3.0.0'
+    rxandroid_version = '2.1.1'
     rxkotlin_version = '3.0.1'
     navigation_version = '2.5.3'
     play_core_version = '1.10.3'
 }
 
+
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
+def STRING = "String"
+def GITHUB_API_KEY = '"' + localProperties['API_KEY'] + '"' ?: '"Define your Github API Key!"'
+def BASE_URL = '"' + localProperties['BASE_URL'] + '"' ?: '"Define your URL!"'
 
 
 android {
@@ -39,6 +46,12 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        each { type ->
+            type.buildConfigField STRING, 'BASE_URL', BASE_URL
+            type.buildConfigField STRING, 'GITHUB_API', GITHUB_API_KEY
+
+        }
+
     }
 
     buildTypes {
@@ -66,13 +79,13 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0'
-    implementation "androidx.fragment:fragment-ktx:1.5.5"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.0"
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation "androidx.fragment:fragment-ktx:1.5.6"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.1"
     implementation "androidx.navigation:navigation-runtime-ktx:2.5.3"
     implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"
     implementation "androidx.navigation:navigation-ui-ktx:2.5.3"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation "androidx.recyclerview:recyclerview:1.2.1"
@@ -81,8 +94,8 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation 'com.github.bumptech.glide:glide:4.12.0'
-    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     kapt 'com.github.bumptech.glide:compiler:4.4.0'
 
     //    Skeleton
@@ -97,13 +110,11 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:${ok_http_version}"
 
     // RX
-    implementation "io.reactivex.rxjava2:rxjava:${rxjava_version}"
-    implementation "io.reactivex.rxjava3:rxandroid:${rxandroid_version}"
+//    implementation "io.reactivex.rxjava2:rxjava:${rxjava_version}"
+//    implementation "io.reactivex.rxjava3:rxandroid:${rxandroid_version}"
     implementation "io.reactivex.rxjava3:rxkotlin:${rxkotlin_version}"
-
-    implementation "io.realm.kotlin:library-base:${realm_version}"
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
-
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

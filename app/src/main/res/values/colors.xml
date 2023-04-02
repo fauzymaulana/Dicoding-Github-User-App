@@ -3,8 +3,9 @@
     <color name="color_primary">#FF7E47</color>
     <color name="color_primary_dark">#BC5124</color>
     <color name="color_primary_variant">#FFB380</color>
-    <color name="color_secondary_light">#75DAFF</color>
     <color name="color_secondary">#03BBFF</color>
+    <color name="color_secondary_light">#75DAFF</color>
+
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>

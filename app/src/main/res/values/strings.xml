@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Dicoding-Github-User-App</string>
+    <string name="label_username">Username</string>
 </resources>
