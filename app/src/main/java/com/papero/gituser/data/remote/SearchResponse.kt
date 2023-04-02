@@ -21,8 +21,6 @@ data class Search(
     var avatarUrl: String? = null,
 
     @SerializedName("type")
-    var type: String? = null,
-
-    var isFavorite: Boolean = false
+    var type: String? = null
 )
 

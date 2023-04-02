@@ -1,47 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.activities.content.home.HomeFragment">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/containerEtUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:boxStrokeWidthFocused="1dp"
-        app:hintEnabled="false"
-        app:boxStrokeColor="@color/label_hint_searchbar"
-        style="@style/Widget.Material3.TextInputEditText.OutlinedBox">
+    <include
+        android:id="@+id/container_toolbar"
+        layout="@layout/component_toolbar" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etUsername"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:focusable="false"
-            android:longClickable="false"
-            android:focusableInTouchMode="false"
-            android:maxLines="1"
-            android:hint="@string/label_username" />
+    <!--    <com.google.android.material.textfield.TextInputLayout-->
+    <!--        android:id="@+id/containerEtUsername"-->
+    <!--        style="@style/Widget.Material3.TextInputEditText.OutlinedBox"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        app:boxStrokeColor="@color/label_hint_searchbar"-->
+    <!--        app:boxStrokeWidthFocused="1dp"-->
+    <!--        app:hintEnabled="false"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent">-->
 
-    </com.google.android.material.textfield.TextInputLayout>
+    <!--        <com.google.android.material.textfield.TextInputEditText-->
+    <!--            android:id="@+id/etUsername"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:hint="@string/label_username"-->
+    <!--            android:inputType="text"-->
+    <!--            android:maxLines="1" />-->
+
+    <!--    </com.google.android.material.textfield.TextInputLayout>-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvListUser"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:overScrollMode="never"
         android:visibility="gone"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginEnd="16dp"
-        tools:listitem="@layout/item_user"
-        app:layout_constraintTop_toBottomOf="@id/containerEtUsername"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/container_toolbar"
+        tools:listitem="@layout/item_user" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/pbCircular"
@@ -50,8 +51,17 @@
         android:indeterminate="true"
         android:visibility="visible"
         app:indicatorColor="@color/color_primary"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/containerEtUsername"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/container_toolbar" />
+
+    <TextView
+        android:id="@+id/txtSearchResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/rvListUser"
+        app:layout_constraintBottom_toBottomOf="@id/rvListUser"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
