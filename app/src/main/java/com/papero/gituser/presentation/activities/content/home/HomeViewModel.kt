@@ -23,29 +23,35 @@ class HomeViewModel(
     val allDataResult: LiveData<Resource<ArrayList<UserResponse>>>
         get() = _allDataResult
 
-    private val _sarchResult = MutableLiveData<Resource<SearchResponse>>()
-    val sarchResult: LiveData<Resource<SearchResponse>>
-        get() = _sarchResult
+    private val _searchResult = MutableLiveData<Resource<ArrayList<UserResponse>>>()
+    val searchResult: LiveData<Resource<ArrayList<UserResponse>>>
+        get() = _searchResult
 
     fun getAllData() {
+        _allDataResult.postValue(Resource.Loading())
         compositeDisposable.add(
             allUserUseCase.execute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { response ->
+                .subscribe ({ response ->
                     _allDataResult.postValue(Resource.Success(response.data))
-                }
+                },{error ->
+                    _allDataResult.postValue(Resource.Error(error.toString()))
+                })
         )
     }
 
     fun searchUsername(username: String) {
+
         compositeDisposable.add(
             searchUsernameUseCase.execute(username)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe{response ->
-                    _sarchResult.postValue(Resource.Success(response.data))
-                }
+                .subscribe({ response ->
+                    _searchResult.postValue(Resource.Success(response.data))
+                }, { error ->
+                    _searchResult.postValue(Resource.Error(error.toString()))
+                })
         )
     }
 }

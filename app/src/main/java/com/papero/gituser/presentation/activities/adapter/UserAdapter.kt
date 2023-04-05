@@ -12,6 +12,14 @@ import com.papero.gituser.databinding.ItemUserBinding
 class UserAdapter(private val dataUser: ArrayList<UserResponse>) :
     RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
 
+    private lateinit var onItemClickDetail: OnItemClickCallBack
+    private lateinit var onItemClickShare: OnItemClickCallBack
+
+    fun setOnItemClickCallback(onItemClickCallBack: OnItemClickCallBack) {
+        this.onItemClickDetail = onItemClickCallBack
+        this.onItemClickShare = onItemClickCallBack
+    }
+
     inner class UserViewHolder(val binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root)
 
     fun setDataUser(items: List<UserResponse>) {
@@ -35,6 +43,7 @@ class UserAdapter(private val dataUser: ArrayList<UserResponse>) :
 
                 binding.txtName.text = this.username
                 binding.txtType.text = this.type
+                itemView.setOnClickListener { onItemClickDetail.onItemClicked(this) }
             }
 
         }
@@ -42,5 +51,9 @@ class UserAdapter(private val dataUser: ArrayList<UserResponse>) :
 
     override fun getItemCount(): Int = dataUser.size
 
+    interface OnItemClickCallBack {
+        fun onItemClicked(data: UserResponse)
+        fun onItemShared(data: UserResponse)
+    }
 
 }

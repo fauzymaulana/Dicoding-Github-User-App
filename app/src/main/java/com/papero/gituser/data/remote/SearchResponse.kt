@@ -7,7 +7,7 @@ data class SearchResponse(
     var totalCount: Int? = null,
 
     @SerializedName("items")
-    var items: ArrayList<Search>? = null
+    var items: ArrayList<UserResponse>? = null
 )
 
 data class Search(

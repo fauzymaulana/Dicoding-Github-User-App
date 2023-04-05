@@ -30,5 +30,6 @@
 
     <color name="color_placeholder_dark">#C4C4C4</color>
     <color name="color_placeholder_light">#DDDDDD</color>
+    <color name="color_border_bg_active">#005580</color>
 
 </resources>

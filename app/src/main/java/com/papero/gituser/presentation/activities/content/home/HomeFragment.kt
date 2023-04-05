@@ -6,10 +6,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.papero.gituser.R
@@ -28,13 +28,15 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
 
     companion object {
         fun newInstance() = HomeFragment()
+        const val USERNAME_KEY = "username_key"
     }
 
     private lateinit var userAdapter: UserAdapter
     private var searchView: SearchView? = null
-    private var _binding: FragmentHomeBinding? = null
 
+    private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
     private val lists = ArrayList<UserResponse>()
     private val requestClient: RequestClient = RequestClient()
     private val homeRepository: HomeRepositoryImpl = HomeRepositoryImpl(requestClient)
@@ -53,26 +55,12 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getAllData()
-        setListeners()
         setupRecyclerView()
         showData()
         setHasOptionsMenu(true)
+        searchResult()
 
-        viewModel.sarchResult.observe(viewLifecycleOwner){resource ->
-            when(resource){
-                is Resource.Loading -> {}
-                is Resource.Success -> {
-                    Log.d("HOME", "onViewCreated: ${resource.data?.items}")
-//                    val user = resource.data?.items as UserResponse
-//                    val userList = ArrayList<UserResponse>()
-//                    userList.add(user)
-//                    userAdapter.setDataUser(userList)
-                }
-                is Resource.Error -> {}
-            }
-        }
-
-//        searchByUsername()
+        binding.btnDetail.setOnClickListener(this)
 
     }
 
@@ -80,31 +68,53 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
         inflater.inflate(R.menu.main_menu, menu)
         val item: MenuItem = menu.findItem(R.id.search)
         val searchManager = requireActivity().getSystemService(SEARCH_SERVICE) as SearchManager
-//         searchView = MenuItemCompat.getActionView(item) as SearchView
 
-        if (item != null) {
-            searchView = item.actionView as SearchView
-        }
+        searchView = item.actionView as SearchView
         searchView!!.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
 
+    }
+
+    private fun searchResult(){
+        viewModel.searchResult.observe(viewLifecycleOwner){ resource ->
+            when(resource){
+                is Resource.Loading -> {
+                    binding.rvListUser.visibility = View.GONE
+                    binding.txtSearchResult.visibility = View.VISIBLE
+                    binding.txtSearchResult.text = getString(R.string.label_searching)
+                }
+                is Resource.Success -> {
+                    if (resource.data?.isEmpty() == true){
+                        binding.rvListUser.visibility = View.GONE
+                        binding.txtSearchResult.visibility = View.VISIBLE
+                        binding.txtSearchResult.text = getString(R.string.label_message)
+                    }else{
+                        if (resource.data != null) {
+                            userAdapter.setDataUser(resource.data)
+                        }
+                        binding.rvListUser.visibility = View.VISIBLE
+                        binding.txtSearchResult.visibility = View.GONE
+                    }
+                }
+                is Resource.Error -> {
+                    binding.rvListUser.visibility = View.GONE
+                    binding.txtSearchResult.visibility = View.VISIBLE
+                    binding.txtSearchResult.text = resource.message.toString()
+                }
+            }
+        }
     }
 
     private fun searchByUsername(){
         searchView!!.queryHint = "Find by username"
         if (searchView != null){
             searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    if (query?.isNotEmpty()!!){
-                        viewModel.searchUsername(query.toString().trim())
-                        Log.d("HOME", "onQueryTextChange: ${query.toString().trim()}")
-                    }
-                    return true
-                }
+                override fun onQueryTextSubmit(query: String?): Boolean = false
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     if (newText?.isNotEmpty()!!){
                         viewModel.searchUsername(newText.toString().trim())
-                        Log.d("HOME", "onQueryTextChange: ${newText.toString().trim()}")
+                    }else if(newText.isEmpty()){
+                        showData()
                     }
                     return true
                 }
@@ -116,8 +126,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
     private fun showData() {
         viewModel.allDataResult.observe(viewLifecycleOwner) { resource ->
             when (resource) {
-                is Resource.Loading -> {
-                }
+                is Resource.Loading -> {}
                 is Resource.Success -> {
                     if (resource.data != null) {
                         userAdapter.setDataUser(resource.data)
@@ -144,9 +153,6 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
         }
         return super.onOptionsItemSelected(item)
     }
-    private fun setListeners() {
-//        binding.etUsername.setOnClickListener(this)
-    }
 
     private fun setupRecyclerView() {
         binding.rvListUser.layoutManager = LinearLayoutManager(activity)
@@ -154,22 +160,34 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
         binding.rvListUser.adapter = userAdapter
         binding.rvListUser.itemAnimator = DefaultItemAnimator()
         userAdapter.notifyDataSetChanged()
+        userAdapter.setOnItemClickCallback(object : UserAdapter.OnItemClickCallBack{
+            override fun onItemClicked(data: UserResponse) {selectedUser(data)}
+
+            override fun onItemShared(data: UserResponse) {
+
+            }
+
+        })
     }
 
-    override fun onClick(p0: View?) {
-        when (p0?.id) {
-//            binding.etUsername.id -> {
-//                view?.findNavController()?.navigate(R.id.action_homeFragment_to_searchFragment)
-////                userAdapter = UserAdapter(arrayListOf())
-////                binding.rvListUser.adapter = userAdapter
-////                userAdapter.notifyDataSetChanged()
-//            }
-        }
+    private fun selectedUser(username: UserResponse){
+        val bundle = Bundle()
+        bundle.putString(USERNAME_KEY, username.username.toString())
+        view?.findNavController()?.navigate(R.id.action_homeFragment_to_detailFragment, bundle)
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+    }
+
+    override fun onClick(p0: View?) {
+        when(p0?.id){
+            binding.btnDetail.id -> {
+//                view?.findNavController()?.navigate(R.id.action_homeFragment_to_detailFragment)
+            }
+        }
     }
 
 }

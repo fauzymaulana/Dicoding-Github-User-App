@@ -1,8 +1,16 @@
 <resources>
-    <string name="app_name">Dicoding-Github-User-App</string>
+    <string name="app_name">Github User App</string>
     <string name="label_username">Username</string>
     <string name="label_hint_username">Find by username</string>
     <string name="label_search">Search</string>
     <string name="label_menu_1">Menu 1</string>
     <string name="label_menu_2">Menu 2</string>
+    <string name="label_message">Data not found</string>
+    <string name="label_searching">Searching..</string>
+
+    <string-array name="label_tab_exams">
+        <item>Follower</item>
+        <item>Following</item>
+    </string-array>
+
 </resources>

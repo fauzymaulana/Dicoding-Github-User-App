@@ -1,8 +1,10 @@
 package com.papero.gituser.data.repository
 
 import android.annotation.SuppressLint
+import com.google.gson.Gson
 import com.papero.gituser.data.remote.Search
 import com.papero.gituser.data.remote.SearchResponse
+import com.papero.gituser.data.remote.UserDetail
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.repository.HomeRepository
 import com.papero.gituser.utilities.network.RequestClient
@@ -13,6 +15,7 @@ import io.reactivex.internal.operators.observable.ObservableAll
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 //import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.io.IOException
 
 class HomeRepositoryImpl(private var requestClient: RequestClient) : HomeRepository {
 
@@ -23,18 +26,23 @@ class HomeRepositoryImpl(private var requestClient: RequestClient) : HomeReposit
 
             requestClient.user().getAllUsers()
                 .subscribeOn(Schedulers.io())
-                .doOnSubscribe { emitter.onNext(Resource.Loading(null)) }
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ response ->
                     val data = response ?: arrayListOf()
                     emitter.onNext(Resource.Success(data))
                 }, { error ->
-                    emitter.onNext(Resource.Error(error.message.toString(), null))
+                    when(error){
+                        is IOException -> {emitter.onNext(Resource.Error("Your network is offline"))}
+                        is Exception -> {emitter.onNext(Resource.Error("Something went wrong"))}
+                        else -> {emitter.onNext(Resource.Error(error.message.toString()))}
+                    }
+                    emitter.onComplete()
                 }).isDisposed
 
         }
     }
 
-    override fun searchByUsername(username: String): Observable<Resource<SearchResponse>> {
+    override fun searchByUsername(username: String): Observable<Resource<ArrayList<UserResponse>>> {
         return Observable.create { emitter ->
 
             emitter.onNext(Resource.Loading())
@@ -43,10 +51,29 @@ class HomeRepositoryImpl(private var requestClient: RequestClient) : HomeReposit
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ response ->
-                    emitter.onNext(Resource.Success(response))
+
+                    val data = response.items
+
+                    emitter.onNext(Resource.Success(data))
+                    emitter.onComplete()
                 }, { error ->
-                    emitter.onNext(Resource.Error(error.message.toString()))
+                    when(error){
+                        is IOException -> {emitter.onNext(Resource.Error("Your network is offline"))}
+                        is Exception -> {emitter.onNext(Resource.Error("Something went wrong"))}
+                        else -> {emitter.onNext(Resource.Error(error.message.toString()))}
+                    }
+                    emitter.onComplete()
                 }).isDisposed
         }
+    }
+
+    override fun getDetailUser(username: String): Observable<Resource<UserDetail>> {
+        return requestClient.user().getDetailUsers(username)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .flatMap<Resource<UserDetail>> { response ->
+                Observable.just(Resource.Success(response))
+            }.onErrorReturn { Resource.Error(it.message.toString()) }
+            .startWith(Resource.Loading())
     }
 }
