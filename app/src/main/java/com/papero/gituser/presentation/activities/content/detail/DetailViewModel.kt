@@ -15,8 +15,6 @@ class DetailViewModel(
     private val detailUserUseCase: DetailUserUseCase
 ) : ViewModel() {
 
-    private val compositeDisposable = CompositeDisposable()
-
     private val _detailResult = MutableLiveData<Resource<UserDetail>>()
     val detailResult: LiveData<Resource<UserDetail>>
         get() = _detailResult
@@ -29,7 +27,7 @@ class DetailViewModel(
                 _detailResult.postValue(Resource.Success(response.data))
             },{error ->
                 _detailResult.postValue(Resource.Error(error.message.toString()))
-            })
+            }).isDisposed
     }
 
 }

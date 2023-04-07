@@ -66,14 +66,4 @@ class HomeRepositoryImpl(private var requestClient: RequestClient) : HomeReposit
                 }).isDisposed
         }
     }
-
-    override fun getDetailUser(username: String): Observable<Resource<UserDetail>> {
-        return requestClient.user().getDetailUsers(username)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .flatMap<Resource<UserDetail>> { response ->
-                Observable.just(Resource.Success(response))
-            }.onErrorReturn { Resource.Error(it.message.toString()) }
-            .startWith(Resource.Loading())
-    }
 }

@@ -7,5 +7,7 @@ class  Routes {
         const val SEARCH = "/search/users"
         const val ALL_DATA = "/users"
         const val DETAIL_DATA = "/users/"
+        const val FOLLOWER = "/followers"
+        const val FOLLOWING = "/following"
     }
 }

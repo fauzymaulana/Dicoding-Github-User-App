@@ -8,7 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.papero.gituser.presentation.activities.content.detail.content.FollowFragment
 
 class ContentDetailUserAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle) {
-    var username = ""
+    var username: String = ""
 
     override fun getItemCount(): Int = 2
 
@@ -17,7 +17,7 @@ class ContentDetailUserAdapter(fragmentManager: FragmentManager, lifecycle: Life
 
         fragment.arguments = Bundle().apply {
             putInt(FollowFragment.ARG_POSITION, position + 1)
-            putString(FollowFragment.ARG_USERNAME, username)
+            putString(FollowFragment.USERNAME_KEY, username)
         }
 
         return fragment

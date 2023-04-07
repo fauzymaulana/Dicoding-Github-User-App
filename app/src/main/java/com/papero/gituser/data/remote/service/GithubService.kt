@@ -21,4 +21,9 @@ interface GithubService {
     @GET(Routes.DETAIL_DATA+"{username}")
     fun getDetailUsers(@Path("username")username: String): Observable<UserDetail>
 
+    @GET(Routes.DETAIL_DATA+"{username}"+Routes.FOLLOWER)
+    fun getFollowers(@Path("username")username: String): Observable<ArrayList<UserResponse>>
+
+    @GET(Routes.DETAIL_DATA+"{username}"+Routes.FOLLOWING)
+    fun getFollowing(@Path("username")username: String): Observable<ArrayList<UserResponse>>
 }

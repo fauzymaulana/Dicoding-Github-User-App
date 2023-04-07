@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayoutMediator
 import com.papero.gituser.R
+import com.papero.gituser.data.repository.DetailRepositoryImpl
 import com.papero.gituser.data.repository.HomeRepositoryImpl
 import com.papero.gituser.databinding.FragmentDetailBinding
 import com.papero.gituser.databinding.FragmentHomeBinding
@@ -22,10 +23,11 @@ import com.papero.gituser.presentation.activities.adapter.ContentDetailUserAdapt
 import com.papero.gituser.presentation.activities.content.home.HomeFragment
 import com.papero.gituser.presentation.activities.content.home.HomeViewModel
 import com.papero.gituser.presentation.activities.content.home.HomeViewModelFactory
+import com.papero.gituser.presentation.base.BaseFragment
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 
-class DetailFragment : Fragment() {
+class DetailFragment : BaseFragment() {
 
     companion object {
         fun newInstance() = DetailFragment()
@@ -37,8 +39,8 @@ class DetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val requestClient: RequestClient = RequestClient()
-    private val homeRepository: HomeRepositoryImpl = HomeRepositoryImpl(requestClient)
-    private val detailUserUseCase = DetailUserUseCase(homeRepository)
+    private val detailRepository = DetailRepositoryImpl(requestClient)
+    private val detailUserUseCase = DetailUserUseCase(detailRepository)
     private val viewModel: DetailViewModel by viewModels { DetailViewModelFactory(detailUserUseCase) }
 
     override fun onCreateView(
@@ -95,6 +97,7 @@ class DetailFragment : Fragment() {
         if (username != null) {
             viewModel.getDetailUser(username)
             Log.d("BUNDLELELE", "getSelectedUser: $username")
+            detailAdapter.username = username
         }
     }
 }

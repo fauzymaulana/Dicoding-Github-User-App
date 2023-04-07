@@ -5,11 +5,14 @@ import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.papero.gituser.R
@@ -24,7 +27,7 @@ import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 
 
-class HomeFragment : BaseFragment(), View.OnClickListener {
+class HomeFragment : BaseFragment() {
 
     companion object {
         fun newInstance() = HomeFragment()
@@ -44,6 +47,7 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
     private val searchUsernameUseCase = SearchUsernameUseCase(homeRepository)
     private val viewModel: HomeViewModel by viewModels { HomeViewModelFactory(allDatUseCase, searchUsernameUseCase) }
 
+    private lateinit var navController: NavController
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,28 +58,34 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (activity as AppCompatActivity).setSupportActionBar(binding.contentToolbar.toolbar)
         viewModel.getAllData()
-        setupRecyclerView()
+        setupRecyclerView(lists)
         showData()
         setHasOptionsMenu(true)
         searchResult()
 
-        binding.btnDetail.setOnClickListener(this)
-
+        navController = findNavController()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main_menu, menu)
-        val item: MenuItem = menu.findItem(R.id.search)
-        val searchManager = requireActivity().getSystemService(SEARCH_SERVICE) as SearchManager
+//        inflater.inflate(R.menu.main_menu, menu)
+//        val item: MenuItem = menu.findItem(R.id.search)
+        binding.contentToolbar.toolbar.inflateMenu(R.menu.main_menu)
 
-        searchView = item.actionView as SearchView
-        searchView!!.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
+//        val searchManager = requireActivity().getSystemService(SEARCH_SERVICE) as SearchManager
+//
+//        searchView = item.actionView as SearchView
+//        searchView!!.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
 
+        val searchItem = binding.contentToolbar.toolbar.menu.findItem(R.id.search)
+        searchView = searchItem.actionView as SearchView
+
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun searchResult(){
-        viewModel.searchResult.observe(viewLifecycleOwner){ resource ->
+        viewModel.searchResult.observe(requireActivity()){ resource ->
             when(resource){
                 is Resource.Loading -> {
                     binding.rvListUser.visibility = View.GONE
@@ -89,7 +99,8 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
                         binding.txtSearchResult.text = getString(R.string.label_message)
                     }else{
                         if (resource.data != null) {
-                            userAdapter.setDataUser(resource.data)
+//                            userAdapter.setDataUser(resource.data)
+                            setupRecyclerView(resource.data)
                         }
                         binding.rvListUser.visibility = View.VISIBLE
                         binding.txtSearchResult.visibility = View.GONE
@@ -118,7 +129,6 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
                     }
                     return true
                 }
-
             })
         }
     }
@@ -129,7 +139,8 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
                 is Resource.Loading -> {}
                 is Resource.Success -> {
                     if (resource.data != null) {
-                        userAdapter.setDataUser(resource.data)
+//                        userAdapter.setDataUser(resource.data)
+                        setupRecyclerView(resource.data)
                     }
                     binding.pbCircular.visibility = View.GONE
                     binding.rvListUser.visibility = View.VISIBLE
@@ -154,26 +165,24 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun setupRecyclerView() {
+    private fun setupRecyclerView(data: ArrayList<UserResponse>) {
         binding.rvListUser.layoutManager = LinearLayoutManager(activity)
-        userAdapter = UserAdapter(lists)
+        userAdapter = UserAdapter(data)
         binding.rvListUser.adapter = userAdapter
         binding.rvListUser.itemAnimator = DefaultItemAnimator()
         userAdapter.notifyDataSetChanged()
         userAdapter.setOnItemClickCallback(object : UserAdapter.OnItemClickCallBack{
             override fun onItemClicked(data: UserResponse) {selectedUser(data)}
-
             override fun onItemShared(data: UserResponse) {
-
             }
-
         })
     }
 
     private fun selectedUser(username: UserResponse){
         val bundle = Bundle()
         bundle.putString(USERNAME_KEY, username.username.toString())
-        view?.findNavController()?.navigate(R.id.action_homeFragment_to_detailFragment, bundle)
+        navController.navigate(R.id.action_homeFragment_to_detailFragment, bundle)
+//        view?.findNavController()?.navigate(R.id.action_homeFragment_to_detailFragment, bundle)
 
     }
 
@@ -181,15 +190,6 @@ class HomeFragment : BaseFragment(), View.OnClickListener {
         super.onDestroy()
         _binding = null
     }
-
-    override fun onClick(p0: View?) {
-        when(p0?.id){
-            binding.btnDetail.id -> {
-//                view?.findNavController()?.navigate(R.id.action_homeFragment_to_detailFragment)
-            }
-        }
-    }
-
 }
 
 class HomeViewModelFactory(

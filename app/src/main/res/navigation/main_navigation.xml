@@ -19,4 +19,6 @@
         android:name="com.papero.gituser.presentation.activities.content.detail.DetailFragment"
         android:label="fragment_detail"
         tools:layout="@layout/fragment_detail" />
+
+
 </navigation>
