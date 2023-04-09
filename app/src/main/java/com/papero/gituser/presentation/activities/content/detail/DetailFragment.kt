@@ -1,6 +1,7 @@
 package com.papero.gituser.presentation.activities.content.detail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,9 @@ class DetailFragment : BaseFragment() {
     private val detailUserUseCase = DetailUserUseCase(detailRepository)
     private val viewModel: DetailViewModel by viewModels { DetailViewModelFactory(detailUserUseCase) }
 
+    private var totalFollowers = 0
+    private var totalFollowing = 0
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,8 +45,9 @@ class DetailFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         detailAdapter = ContentDetailUserAdapter(parentFragmentManager, lifecycle)
-        setupTabLayout()
+
         getSelectedUser()
 
         viewModel.detailResult.observe(viewLifecycleOwner){resource ->
@@ -65,13 +70,20 @@ class DetailFragment : BaseFragment() {
                             (if (data.username == null) getString(R.string.label_content_is_empty, "Username") else  data.username).toString()
                         binding.txtJob.text = (if (data.company == null) getString(R.string.label_content_is_empty, "Company") else  data.company).toString()
                         binding.txtLocation.text = (if (data.location == null) getString(R.string.label_content_is_empty, "Location") else  data.location).toString()
+
+                        totalFollowers = resource.data.followers!!
+                        totalFollowing = resource.data.following!!
+
                         binding.placeholderTopContent.visibility = View.GONE
                         binding.topRoot.visibility = View.VISIBLE
                     }
+                    setupTabLayout()
                 }
                 is Resource.Error -> {}
             }
         }
+
+
     }
 
     private fun setupTabLayout(){
@@ -82,7 +94,11 @@ class DetailFragment : BaseFragment() {
 
         val labelTabLayout = resources.getStringArray(R.array.label_tab_exams)
         TabLayoutMediator(tabLayout, vpContent){tab, position ->
-            tab.text = labelTabLayout[position]
+            when(position){
+                0 -> { tab.text = String.format(labelTabLayout[0], totalFollowers.toString())}
+                else -> {tab.text = String.format(labelTabLayout[1], totalFollowing.toString())}
+            }
+
         }.attach()
     }
 

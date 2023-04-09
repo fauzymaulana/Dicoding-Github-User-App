@@ -14,8 +14,8 @@
     <string name="label_error_exception">Something went wrong</string>
 
     <string-array name="label_tab_exams">
-        <item>Follower</item>
-        <item>Following</item>
+        <item>Follower    %1$s</item>
+        <item>Following   %1$s</item>
     </string-array>
 
 </resources>
