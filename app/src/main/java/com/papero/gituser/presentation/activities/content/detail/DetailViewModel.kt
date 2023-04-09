@@ -4,11 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.papero.gituser.data.remote.UserDetail
-import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.usecase.DetailUserUseCase
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 class DetailViewModel(

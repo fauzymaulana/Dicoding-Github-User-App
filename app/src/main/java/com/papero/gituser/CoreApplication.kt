@@ -11,10 +11,8 @@ class CoreApplication : Application(), Application.ActivityLifecycleCallbacks {
         private const val TAG = "LifecycleCallbacks"
     }
 
-
     override fun onCreate() {
         super.onCreate()
-
         registerActivityLifecycleCallbacks(this)
     }
 

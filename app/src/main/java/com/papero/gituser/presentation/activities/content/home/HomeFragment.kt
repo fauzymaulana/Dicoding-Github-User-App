@@ -1,18 +1,13 @@
 package com.papero.gituser.presentation.activities.content.home
 
-import android.app.SearchManager
-import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.papero.gituser.R
@@ -45,9 +40,13 @@ class HomeFragment : BaseFragment() {
     private val homeRepository: HomeRepositoryImpl = HomeRepositoryImpl(requestClient)
     private val allDatUseCase: AllUserUseCase = AllUserUseCase(homeRepository)
     private val searchUsernameUseCase = SearchUsernameUseCase(homeRepository)
-    private val viewModel: HomeViewModel by viewModels { HomeViewModelFactory(allDatUseCase, searchUsernameUseCase) }
+    private val viewModel: HomeViewModel by viewModels {
+        HomeViewModelFactory(
+            allDatUseCase,
+            searchUsernameUseCase
+        )
+    }
 
-    private lateinit var navController: NavController
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,47 +59,37 @@ class HomeFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).setSupportActionBar(binding.contentToolbar.toolbar)
         viewModel.getAllData()
-        setupRecyclerView(lists)
         showData()
         setHasOptionsMenu(true)
         searchResult()
-
-        navController = findNavController()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        inflater.inflate(R.menu.main_menu, menu)
-//        val item: MenuItem = menu.findItem(R.id.search)
-        binding.contentToolbar.toolbar.inflateMenu(R.menu.main_menu)
-
-//        val searchManager = requireActivity().getSystemService(SEARCH_SERVICE) as SearchManager
-//
-//        searchView = item.actionView as SearchView
-//        searchView!!.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
-
-        val searchItem = binding.contentToolbar.toolbar.menu.findItem(R.id.search)
+        val toolbar = binding.contentToolbar.toolbar
+        toolbar.inflateMenu(R.menu.main_menu)
+        val searchItem = toolbar.menu.findItem(R.id.search)
         searchView = searchItem.actionView as SearchView
 
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    private fun searchResult(){
-        viewModel.searchResult.observe(requireActivity()){ resource ->
-            when(resource){
+    private fun searchResult() {
+        viewModel.searchResult.observe(viewLifecycleOwner) { resource ->
+            when (resource) {
                 is Resource.Loading -> {
+                    binding.placeholderRoot.isShimmerStarted
+                    isVisibleView(View.VISIBLE, binding.placeholderRoot, binding.txtSearchResult)
                     binding.rvListUser.visibility = View.GONE
-                    binding.txtSearchResult.visibility = View.VISIBLE
                     binding.txtSearchResult.text = getString(R.string.label_searching)
                 }
                 is Resource.Success -> {
-                    if (resource.data?.isEmpty() == true){
-                        binding.rvListUser.visibility = View.GONE
+                    if (resource.data?.isEmpty() == true) {
+                        isVisibleView(View.GONE, binding.placeholderRoot, binding.txtSearchResult)
                         binding.txtSearchResult.visibility = View.VISIBLE
                         binding.txtSearchResult.text = getString(R.string.label_message)
-                    }else{
+                    } else {
                         if (resource.data != null) {
-//                            userAdapter.setDataUser(resource.data)
-                            setupRecyclerView(resource.data)
+                            userAdapter.setDataUser(resource.data)
                         }
                         binding.rvListUser.visibility = View.VISIBLE
                         binding.txtSearchResult.visibility = View.GONE
@@ -115,16 +104,16 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun searchByUsername(){
+    private fun searchByUsername() {
         searchView!!.queryHint = "Find by username"
-        if (searchView != null){
-            searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        if (searchView != null) {
+            searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean = false
 
                 override fun onQueryTextChange(newText: String?): Boolean {
-                    if (newText?.isNotEmpty()!!){
+                    if (newText?.isNotEmpty()!!) {
                         viewModel.searchUsername(newText.toString().trim())
-                    }else if(newText.isEmpty()){
+                    } else if (newText.isEmpty()) {
                         showData()
                     }
                     return true
@@ -134,19 +123,20 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun showData() {
-        viewModel.allDataResult.observe(viewLifecycleOwner) { resource ->
+        viewModel.allDataResult.observe(requireActivity()) { resource ->
             when (resource) {
-                is Resource.Loading -> {}
+                is Resource.Loading -> {
+                    binding.placeholderRoot.isShimmerStarted
+                }
                 is Resource.Success -> {
                     if (resource.data != null) {
-//                        userAdapter.setDataUser(resource.data)
                         setupRecyclerView(resource.data)
+                        isVisibleView(View.GONE, binding.placeholderRoot)
                     }
-                    binding.pbCircular.visibility = View.GONE
-                    binding.rvListUser.visibility = View.VISIBLE
+                    isVisibleView(View.VISIBLE, binding.rvListUser)
                 }
                 is Resource.Error -> {
-                    showSnackBarwithAction(
+                    showSnackBarWithAction(
                         R.color.color_error,
                         resource.message.toString(),
                         null
@@ -157,7 +147,7 @@ class HomeFragment : BaseFragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.search -> {
                 searchByUsername()
             }
@@ -171,19 +161,26 @@ class HomeFragment : BaseFragment() {
         binding.rvListUser.adapter = userAdapter
         binding.rvListUser.itemAnimator = DefaultItemAnimator()
         userAdapter.notifyDataSetChanged()
-        userAdapter.setOnItemClickCallback(object : UserAdapter.OnItemClickCallBack{
-            override fun onItemClicked(data: UserResponse) {selectedUser(data)}
+        userAdapter.setOnItemClickCallback(object :
+            UserAdapter.OnItemClickCallBack {
+            override fun onItemClicked(data: UserResponse) {
+                selectedUser(data)
+            }
+
             override fun onItemShared(data: UserResponse) {
             }
         })
     }
 
-    private fun selectedUser(username: UserResponse){
+    private fun selectedUser(username: UserResponse) {
         val bundle = Bundle()
         bundle.putString(USERNAME_KEY, username.username.toString())
-        navController.navigate(R.id.action_homeFragment_to_detailFragment, bundle)
-//        view?.findNavController()?.navigate(R.id.action_homeFragment_to_detailFragment, bundle)
+        view?.findNavController()?.navigate(R.id.action_homeFragment_to_detailFragment, bundle)
+    }
 
+    override fun onStart() {
+        super.onStart()
+        binding.placeholderRoot.isShimmerStarted
     }
 
     override fun onDestroy() {

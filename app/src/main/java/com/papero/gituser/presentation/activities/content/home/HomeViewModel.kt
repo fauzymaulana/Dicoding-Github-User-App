@@ -3,7 +3,6 @@ package com.papero.gituser.presentation.activities.content.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.papero.gituser.data.remote.SearchResponse
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.usecase.AllUserUseCase
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase

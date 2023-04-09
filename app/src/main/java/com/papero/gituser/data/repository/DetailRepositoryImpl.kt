@@ -3,12 +3,12 @@ package com.papero.gituser.data.repository
 import com.papero.gituser.data.remote.UserDetail
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.repository.DetailRepository
-import com.papero.gituser.domain.repository.HomeRepository
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.io.IOException
 
 class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRepository {
 
@@ -18,7 +18,14 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap<Resource<UserDetail>> { response ->
                 Observable.just(Resource.Success(response))
-            }.onErrorReturn { Resource.Error(it.message.toString()) }
+            }.onErrorReturn {
+                when(it){
+                    is IOException -> {Resource.Error("Your network is offline")}
+                    is Exception -> {Resource.Error("Something went wrong")}
+                    else -> {Resource.Error(it.message.toString())}
+                }
+
+            }
             .startWith(Resource.Loading())
     }
 
@@ -28,7 +35,13 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap<Resource<ArrayList<UserResponse>>> { response ->
                 Observable.just(Resource.Success(response))
-            }.onErrorReturn { Resource.Error(it.message.toString()) }
+            }.onErrorReturn {
+                when(it){
+                    is IOException -> {Resource.Error("Your network is offline")}
+                    is Exception -> {Resource.Error("Something went wrong")}
+                    else -> {Resource.Error(it.message.toString())}
+                }
+            }
             .startWith(Resource.Loading())
     }
 
@@ -38,7 +51,13 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap<Resource<ArrayList<UserResponse>>> { response ->
                 Observable.just(Resource.Success(response))
-            }.onErrorReturn { Resource.Error(it.message.toString()) }
+            }.onErrorReturn {
+                when(it){
+                    is IOException -> {Resource.Error("Your network is offline")}
+                    is Exception -> {Resource.Error("Something went wrong")}
+                    else -> {Resource.Error(it.message.toString())}
+                }
+            }
             .startWith(Resource.Loading())
     }
 

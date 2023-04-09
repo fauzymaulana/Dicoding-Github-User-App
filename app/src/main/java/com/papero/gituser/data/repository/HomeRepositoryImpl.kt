@@ -1,19 +1,11 @@
 package com.papero.gituser.data.repository
 
-import android.annotation.SuppressLint
-import com.google.gson.Gson
-import com.papero.gituser.data.remote.Search
-import com.papero.gituser.data.remote.SearchResponse
-import com.papero.gituser.data.remote.UserDetail
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.repository.HomeRepository
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.internal.operators.observable.ObservableAll
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-//import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.io.IOException
 

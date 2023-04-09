@@ -1,26 +1,21 @@
 package com.papero.gituser.presentation.activities.content.detail.content
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.papero.gituser.R
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.data.repository.DetailRepositoryImpl
 import com.papero.gituser.databinding.FragmentFollowBinding
-import com.papero.gituser.databinding.FragmentHomeBinding
-import com.papero.gituser.domain.usecase.DetailUserUseCase
 import com.papero.gituser.domain.usecase.FollowerUseCase
 import com.papero.gituser.domain.usecase.FollowingUseCase
 import com.papero.gituser.presentation.activities.adapter.UserAdapter
-import com.papero.gituser.presentation.activities.content.detail.DetailViewModel
 import com.papero.gituser.presentation.activities.content.home.HomeFragment
 import com.papero.gituser.presentation.base.BaseFragment
 import com.papero.gituser.utilities.network.RequestClient
@@ -29,7 +24,6 @@ import com.papero.gituser.utilities.stateHandler.Resource
 class FollowFragment : BaseFragment() {
 
     companion object {
-        fun newInstance() = FollowFragment()
         const val ARG_POSITION = "position"
         const val USERNAME_KEY = "username_key"
     }
@@ -47,6 +41,7 @@ class FollowFragment : BaseFragment() {
 
     private var position: Int = 0
     private lateinit var username: String
+    private var content = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,10 +62,12 @@ class FollowFragment : BaseFragment() {
         }
 
         if (position == 1){
+            content = getString(R.string.label_follower)
             showFollower()
             viewModel.getFollowerUser(username)
 
         }else {
+            content = getString(R.string.label_following)
             showFollowing()
             viewModel.getFollowingUser(username)
         }
@@ -95,22 +92,20 @@ class FollowFragment : BaseFragment() {
                 is Resource.Loading -> {}
                 is Resource.Success -> {
                     if (resource.data != null){
+                        isVisibleView(View.GONE, binding.placeholderFollowRoot)
                         if (resource.data.isEmpty()){
-                            binding.rvContentFollow.visibility = View.GONE
-                            binding.txtErrorResult.text = "Following is Empty"
+                            isVisibleView(View.GONE, binding.rvContentFollow)
+                            isVisibleView(View.VISIBLE, binding.txtErrorResult)
+                            binding.txtErrorResult.text = getString(R.string.label_content_is_empty, content)
                         }else {
-                            binding.rvContentFollow.visibility = View.VISIBLE
+                            isVisibleView(View.GONE, binding.txtErrorResult)
+                            isVisibleView(View.VISIBLE, binding.rvContentFollow)
                             userAdapter.setDataUser(resource.data)
                         }
                     }
-
                 }
                 is Resource.Error -> {
-                    showSnackBarwithAction(
-                        R.color.color_error,
-                        resource.message.toString(),
-                        null
-                    ) {}
+                    showSnackBarWithAction(R.color.color_error, resource.message.toString(), null) {}
                 }
             }
         }
@@ -119,27 +114,32 @@ class FollowFragment : BaseFragment() {
     private fun showFollower(){
         viewModel.followerDataResult.observe(viewLifecycleOwner){resource ->
             when(resource){
-                is Resource.Loading -> {}
+                is Resource.Loading -> {
+                    binding.placeholderFollowRoot.isShimmerStarted
+                    isVisibleView(View.GONE, binding.rvContentFollow)
+                }
                 is Resource.Success -> {
                     if (resource.data != null){
+                        isVisibleView(View.GONE, binding.placeholderFollowRoot)
                         if (resource.data.isEmpty()){
-                            binding.rvContentFollow.visibility = View.GONE
-                            binding.txtErrorResult.text = "Follower is Empty"
+                            isVisibleView(View.VISIBLE, binding.txtErrorResult)
+                            isVisibleView(View.GONE, binding.rvContentFollow)
+                            binding.txtErrorResult.text = getString(R.string.label_content_is_empty, content)
                         }else {
-                            binding.rvContentFollow.visibility = View.VISIBLE
+                            isVisibleView(View.GONE, binding.txtErrorResult)
+                            isVisibleView(View.VISIBLE, binding.rvContentFollow)
                             userAdapter.setDataUser(resource.data)
                         }
                     }
                 }
-                is Resource.Error -> {
-                    showSnackBarwithAction(
-                        R.color.color_error,
-                        resource.message.toString(),
-                        null
-                    ) {}
-                }
+                is Resource.Error -> { showSnackBarWithAction(R.color.color_error, resource.message.toString(), null) {} }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.placeholderFollowRoot.isShimmerStarted
     }
 
 }

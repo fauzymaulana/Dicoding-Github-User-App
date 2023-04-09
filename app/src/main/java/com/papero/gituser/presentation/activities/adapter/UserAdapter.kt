@@ -1,11 +1,9 @@
 package com.papero.gituser.presentation.activities.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.papero.gituser.R
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.databinding.ItemUserBinding
 

@@ -7,6 +7,11 @@
     <string name="label_menu_2">Menu 2</string>
     <string name="label_message">Data not found</string>
     <string name="label_searching">Searching..</string>
+    <string name="label_following">Following</string>
+    <string name="label_follower">Follower</string>
+    <string name="label_content_is_empty">%1$s is Empty</string>
+    <string name="label_error_network">Your network is offline</string>
+    <string name="label_error_exception">Something went wrong</string>
 
     <string-array name="label_tab_exams">
         <item>Follower</item>
