@@ -25,7 +25,6 @@ import com.papero.gituser.utilities.stateHandler.Resource
 class HomeFragment : BaseFragment() {
 
     companion object {
-        fun newInstance() = HomeFragment()
         const val USERNAME_KEY = "username_key"
     }
 
