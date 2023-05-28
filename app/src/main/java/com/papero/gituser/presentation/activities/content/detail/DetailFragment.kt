@@ -20,7 +20,7 @@ import com.papero.gituser.presentation.base.BaseFragment
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 
-class DetailFragment : BaseFragment() {
+class DetailFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var detailAdapter: ContentDetailUserAdapter
 
@@ -48,6 +48,7 @@ class DetailFragment : BaseFragment() {
 
         detailAdapter = ContentDetailUserAdapter(parentFragmentManager, lifecycle)
 
+        initListeners()
         getSelectedUser()
 
         viewModel.detailResult.observe(viewLifecycleOwner){resource ->
@@ -86,6 +87,10 @@ class DetailFragment : BaseFragment() {
 
     }
 
+    private fun initListeners() {
+        binding.floatingActionButton.setOnClickListener(this)
+    }
+
     private fun setupTabLayout(){
         val tabLayout = binding.bottomContent.tabLayout
         val vpContent = binding.bottomContent.vpContent
@@ -113,6 +118,14 @@ class DetailFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
         binding.placeholderTopContent.isShimmerStarted
+    }
+
+    override fun onClick(p0: View?) {
+        when(p0?.id){
+            binding.floatingActionButton.id -> {
+
+            }
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.papero.gituser.data.repository
 
+import com.papero.gituser.data.local.realm.FavoriteRealm
 import com.papero.gituser.data.remote.UserDetail
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.repository.DetailRepository
@@ -61,4 +62,7 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .startWith(Resource.Loading())
     }
 
+//    override fun saveUserToRealm(username: String): Observable<Resource<FavoriteRealm>> {
+//        return requestClient
+//    }
 }
