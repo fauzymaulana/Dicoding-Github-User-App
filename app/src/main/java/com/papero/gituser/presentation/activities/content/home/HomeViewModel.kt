@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.usecase.AllUserUseCase
-import com.papero.gituser.domain.usecase.SaveFavoriteUseCase
+import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -16,7 +16,7 @@ import io.reactivex.schedulers.Schedulers
 class HomeViewModel(
     private val allUserUseCase: AllUserUseCase,
     private val searchUsernameUseCase: SearchUsernameUseCase,
-    private val saveFavoriteUseCase: SaveFavoriteUseCase
+    private val saveFavoriteUseCases: SaveFavoriteUseCases
 ) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
@@ -64,7 +64,7 @@ class HomeViewModel(
             img = data.avatarUrl
         }
         compositeDisposable.add(
-            saveFavoriteUseCase.execute(toFavorite)
+            saveFavoriteUseCases.execute(toFavorite)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({response ->

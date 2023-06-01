@@ -6,7 +6,7 @@
     tools:context=".presentation.activities.content.favorite.FavoriteFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvDetail"
+        android:id="@+id/rvFavorite"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:listitem="@layout/item_user"/>

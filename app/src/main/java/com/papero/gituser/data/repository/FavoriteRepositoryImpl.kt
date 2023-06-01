@@ -10,15 +10,16 @@ import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.Observable
 import io.realm.Realm
+import io.realm.RealmResults
 import retrofit2.HttpException
 import java.io.IOException
 
-class FavoriteRepositoryImpl(private var realm: Realm): FavoriteRepository {
+class FavoriteRepositoryImpl(): FavoriteRepository {
 
     override fun saveFavorite(account: Favorite): Observable<Resource<String>> {
         return Observable.create { emitter ->
             try {
-                realm = Realm.getDefaultInstance()
+                val realm = Realm.getDefaultInstance()
                 val realmThread = Thread.currentThread().name
                 Log.d("Realm Thread Rpo", realmThread ?: "Unknown")
 
@@ -61,6 +62,24 @@ class FavoriteRepositoryImpl(private var realm: Realm): FavoriteRepository {
             }catch (e: Exception){
                 emitter.onError(e)
             }finally {
+                emitter.onComplete()
+            }
+        }
+    }
+
+    override fun getFavorites(): Observable<Resource<ArrayList<FavoriteRealm>>> {
+        return Observable.create { emitter ->
+            val realm = Realm.getDefaultInstance()
+            try {
+                realm.executeTransaction { db ->
+                    val favoriteLocal = db.where(FavoriteRealm::class.java).findAll()
+                    val favorites = db.copyToRealm(favoriteLocal)
+                    emitter.onNext(Resource.Success(ArrayList(favorites)))
+                }
+            }catch (e: Exception){
+                emitter.onError(e)
+            } finally {
+                realm.close()
                 emitter.onComplete()
             }
         }

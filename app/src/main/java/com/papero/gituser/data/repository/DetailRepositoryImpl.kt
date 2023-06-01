@@ -4,7 +4,6 @@ import android.util.Log
 import com.papero.gituser.data.local.realm.FavoriteRealm
 import com.papero.gituser.data.remote.UserDetail
 import com.papero.gituser.data.remote.UserResponse
-import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.repository.DetailRepository
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
@@ -12,12 +11,11 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
-import retrofit2.HttpException
 import java.io.IOException
 
 class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRepository {
 
-    private var realm: Realm = Realm.getDefaultInstance()
+//    private var realm: Realm = Realm.getDefaultInstance()
 
     override fun getDetailUser(username: String): Observable<Resource<UserDetail>> {
         return requestClient.user().getDetailUsers(username)
@@ -26,10 +24,16 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .flatMap<Resource<UserDetail>> { response ->
                 Observable.just(Resource.Success(response))
             }.onErrorReturn {
-                when(it){
-                    is IOException -> {Resource.Error("Your network is offline")}
-                    is Exception -> {Resource.Error("Something went wrong")}
-                    else -> {Resource.Error(it.message.toString())}
+                when (it) {
+                    is IOException -> {
+                        Resource.Error("Your network is offline")
+                    }
+                    is Exception -> {
+                        Resource.Error("Something went wrong")
+                    }
+                    else -> {
+                        Resource.Error(it.message.toString())
+                    }
                 }
 
             }
@@ -43,10 +47,16 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .flatMap<Resource<ArrayList<UserResponse>>> { response ->
                 Observable.just(Resource.Success(response))
             }.onErrorReturn {
-                when(it){
-                    is IOException -> {Resource.Error("Your network is offline")}
-                    is Exception -> {Resource.Error("Something went wrong")}
-                    else -> {Resource.Error(it.message.toString())}
+                when (it) {
+                    is IOException -> {
+                        Resource.Error("Your network is offline")
+                    }
+                    is Exception -> {
+                        Resource.Error("Something went wrong")
+                    }
+                    else -> {
+                        Resource.Error(it.message.toString())
+                    }
                 }
             }
             .startWith(Resource.Loading())
@@ -59,41 +69,80 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .flatMap<Resource<ArrayList<UserResponse>>> { response ->
                 Observable.just(Resource.Success(response))
             }.onErrorReturn {
-                when(it){
-                    is IOException -> {Resource.Error("Your network is offline")}
-                    is Exception -> {Resource.Error("Something went wrong")}
-                    else -> {Resource.Error(it.message.toString())}
+                when (it) {
+                    is IOException -> {
+                        Resource.Error("Your network is offline")
+                    }
+                    is Exception -> {
+                        Resource.Error("Something went wrong")
+                    }
+                    else -> {
+                        Resource.Error(it.message.toString())
+                    }
                 }
             }
             .startWith(Resource.Loading())
     }
 
-    override fun saveFavorite(favorite: Favorite): Observable<Resource<FavoriteRealm>> {
+    override fun saveFavorite(username: String): Observable<Resource<String>> {
+        return requestClient.user().getDetailUsers(username)
+            .subscribeOn(Schedulers.io())
+            .flatMap<Resource<String>> { value ->
+                val realm = Realm.getDefaultInstance()
+                realm.executeTransaction{ db ->
+                    val info = db.where(FavoriteRealm::class.java).equalTo("username", username)
+                        .findFirst()
+                    if (info == null) {
+                        val saveFav = db.createObject(FavoriteRealm::class.java)
+                        saveFav.username = value.username
+                        saveFav.img = value.avatarUrl
+                        saveFav.status = true
+                    }
+
+                    val d = db.where(FavoriteRealm::class.java).findAll()
+                    Log.d("DETAIL", "saveFavorite: $d")
+                }
+
+//                    , {
+//                    val d = realm.where(FavoriteRealm::class.java).findAll()
+//                    Log.d("DETAIL", "saveFavorite: $d")
+//                }, { error ->
+//                    Log.d("DETAIL", "error ${error.message}")
+//                })
+                realm.close()
+                Observable.just(Resource.Success("$username berhasil disimpan"))
+            }
+            .onErrorReturn { error ->
+                when (error) {
+                    is IOException -> {
+                        Resource.Error("Your network is offline")
+                    }
+                    is Exception -> {
+                        Log.d("EXCEPTION", "saveFavorite: ${error.message.toString()}")
+                        Resource.Error("Something went wrong")
+                    }
+                    else -> {
+                        Log.d("ELSE", "saveFavorite: ${error.message.toString()}")
+                        Resource.Error(error.message.toString())
+                    }
+                }
+            }
+            .startWith(Resource.Loading())
+    }
+
+    override fun getFavorite(username: String): Observable<Resource<Boolean>> {
         return Observable.create { emitter ->
             try {
-                realm.executeTransactionAsync ({ db ->
-                    val data = db.where(FavoriteRealm::class.java).equalTo("username", favorite.username).findFirst()
-                    data?.apply {
-                        username = favorite.username
-//                        img = favorite.img
-                    }
-                    db.copyToRealm(data)
-                },{
-                    val data = realm.where(FavoriteRealm::class.java).findAll()
-                    Log.d("TAG", "saveFavorite: $data")
-                },{error ->
-                    Log.d("TAG", "saveFavorite: ${error.message}")
-                })
-            }catch (e: HttpException){
-                emitter.onError(e)
-            }catch (e: IOException){
-                emitter.onError(e)
+                val realm = Realm.getDefaultInstance()
+                val findFav = realm.where(FavoriteRealm::class.java).equalTo("username", username).findFirst()
+                val saved = findFav != null
+                realm.close()
+                emitter.onNext(Resource.Success(saved))
             }catch (e: Exception){
                 emitter.onError(e)
-            }finally {
-                emitter.onComplete()
+            } finally {
+              emitter.onComplete()
             }
         }
     }
-
 }

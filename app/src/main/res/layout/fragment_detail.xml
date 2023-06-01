@@ -226,13 +226,13 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floating_action_button"
+        android:id="@+id/fabFavorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:visibility="visible"
         android:contentDescription="Tambahkan favorit"
-        app:srcCompat="@drawable/behavior_color_favorite"/>
+        app:srcCompat="@drawable/ic_favorite_border"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

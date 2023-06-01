@@ -9,4 +9,5 @@ import io.reactivex.Observable
 interface FavoriteRepository {
 
     fun saveFavorite(account: Favorite): Observable<Resource<String>>
+    fun getFavorites(): Observable<Resource<ArrayList<FavoriteRealm>>>
 }

@@ -82,8 +82,8 @@ class FollowFragment : BaseFragment() {
         userAdapter.notifyDataSetChanged()
         userAdapter.setOnItemClickCallback(object : UserAdapter.OnItemClickCallBack{
             override fun onItemClicked(data: UserResponse) {}
-            override fun onItemShared(data: UserResponse) {
-            }
+            override fun onItemShared(data: UserResponse) {}
+            override fun onItemFavorite(data: UserResponse) {}
         })
     }
 

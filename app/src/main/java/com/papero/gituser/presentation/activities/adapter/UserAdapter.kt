@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.databinding.ItemUserBinding
+import com.papero.gituser.domain.data.Favorite
 
 class UserAdapter(private val slug: String = "", private val dataUser: ArrayList<UserResponse>) :
     RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
@@ -39,13 +40,16 @@ class UserAdapter(private val slug: String = "", private val dataUser: ArrayList
             with(dataUser[position]) {
                 when(slug){
                     "follow" -> {
-                        binding.checkedFavorite.visibility = View.GONE
+                        binding.imgDetail.visibility = View.GONE
                     }
                     else -> {
-                        binding.checkedFavorite.visibility = View.VISIBLE
-                        binding.checkedFavorite.setOnClickListener { onItemClickFavorite.onItemFavorite(this) }
+                        binding.imgDetail.visibility = View.VISIBLE
+//                        binding.checkedFavorite.setOnClickListener { onItemClickFavorite.onItemFavorite(this) }
                     }
                 }
+
+//                binding.checkedFavorite.isChecked = this.status
+
                 Glide.with(itemView.context)
                     .load(this.avatarUrl)
                     .centerCrop()

@@ -3,7 +3,6 @@ package com.papero.gituser.presentation.activities.content.home
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.CheckBox
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -14,14 +13,13 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.papero.gituser.CoreApplication
 import com.papero.gituser.R
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.data.repository.FavoriteRepositoryImpl
 import com.papero.gituser.data.repository.HomeRepositoryImpl
 import com.papero.gituser.databinding.FragmentHomeBinding
 import com.papero.gituser.domain.usecase.AllUserUseCase
-import com.papero.gituser.domain.usecase.SaveFavoriteUseCase
+import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase
 import com.papero.gituser.presentation.activities.adapter.UserAdapter
 import com.papero.gituser.presentation.base.BaseFragment
@@ -32,26 +30,19 @@ import io.realm.Realm
 
 class HomeFragment : BaseFragment() {
 
-    companion object {
-        const val USERNAME_KEY = "username_key"
-    }
-
     private var bottomNav: BottomNavigationView? = null
-    private var checkFavorite: CheckBox? = null
     private lateinit var userAdapter: UserAdapter
     private var searchView: SearchView? = null
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val lists = ArrayList<UserResponse>()
     private val requestClient: RequestClient = RequestClient()
     private val homeRepository = HomeRepositoryImpl(requestClient)
-    private val realm: Realm by lazy { Realm.getDefaultInstance() }
-    private val favRepository = FavoriteRepositoryImpl(realm)
+    private val favRepository = FavoriteRepositoryImpl()
     private val allDatUseCase: AllUserUseCase = AllUserUseCase(homeRepository)
     private val searchUsernameUseCase = SearchUsernameUseCase(homeRepository)
-    private val saveFavUseCase= SaveFavoriteUseCase(favRepository)
+    private val saveFavUseCase= SaveFavoriteUseCases(favRepository)
 
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModelFactory(
@@ -72,13 +63,9 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bottomNav = activity?.findViewById(R.id.bottom_nav)
-//        val realm = (requireActivity().applicationContext as CoreApplication)
-        checkFavorite = view.findViewById(R.id.checkedFavorite)
         (activity as AppCompatActivity).setSupportActionBar(binding.contentToolbar.toolbar)
         viewModel.getAllData()
         showData()
-        val realmThread = Thread.currentThread().name
-        Log.d("Realm Thread", realmThread ?: "Unknown")
         setHasOptionsMenu(true)
         searchResult()
     }
@@ -195,7 +182,7 @@ class HomeFragment : BaseFragment() {
                 is Resource.Error -> resource.message.toString()
                 is Resource.Loading -> ""
                 is Resource.Success -> {
-                    checkFavorite?.isChecked = true
+//                    checkFavorite?.isChecked = true
                     resource.data.toString()
                 }
             }
@@ -219,21 +206,24 @@ class HomeFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        realm.close()
         _binding = null
+    }
+
+    companion object {
+        const val USERNAME_KEY = "username_key"
     }
 }
 
 class HomeViewModelFactory(
     private val allDatUseCase: AllUserUseCase,
     private val searchUsernameUseCase: SearchUsernameUseCase,
-    private val saveFavoriteUseCase: SaveFavoriteUseCase
+    private val saveFavoriteUseCases: SaveFavoriteUseCases
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomeViewModel(
             allDatUseCase,
             searchUsernameUseCase,
-            saveFavoriteUseCase
+            saveFavoriteUseCases
         ) as T
     }
 }
