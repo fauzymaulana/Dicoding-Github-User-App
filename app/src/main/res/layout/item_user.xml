@@ -42,5 +42,16 @@
             app:layout_constraintStart_toStartOf="@id/txtName"
             app:layout_constraintTop_toBottomOf="@id/txtName" />
 
+        <CheckBox
+            android:id="@+id/checkedFavorite"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_height="wrap_content"
+            android:button="@drawable/behavior_color_favorite"
+            app:buttonTint="@android:color/holo_red_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -6,5 +6,6 @@ import io.realm.annotations.RealmClass
 @RealmClass
 open class FavoriteRealm: RealmObject() {
     var username: String? = null
-    var img: Int? = null
+    var img: String? = null
+    var status: Boolean = false
 }

@@ -1,21 +1,24 @@
 package com.papero.gituser.presentation.activities.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.databinding.ItemUserBinding
 
-class UserAdapter(private val dataUser: ArrayList<UserResponse>) :
+class UserAdapter(private val slug: String = "", private val dataUser: ArrayList<UserResponse>) :
     RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
 
     private lateinit var onItemClickDetail: OnItemClickCallBack
     private lateinit var onItemClickShare: OnItemClickCallBack
+    private lateinit var onItemClickFavorite: OnItemClickCallBack
 
     fun setOnItemClickCallback(onItemClickCallBack: OnItemClickCallBack) {
         this.onItemClickDetail = onItemClickCallBack
         this.onItemClickShare = onItemClickCallBack
+        this.onItemClickFavorite = onItemClickCallBack
     }
 
     inner class UserViewHolder(val binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root)
@@ -34,6 +37,15 @@ class UserAdapter(private val dataUser: ArrayList<UserResponse>) :
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         with(holder) {
             with(dataUser[position]) {
+                when(slug){
+                    "follow" -> {
+                        binding.checkedFavorite.visibility = View.GONE
+                    }
+                    else -> {
+                        binding.checkedFavorite.visibility = View.VISIBLE
+                        binding.checkedFavorite.setOnClickListener { onItemClickFavorite.onItemFavorite(this) }
+                    }
+                }
                 Glide.with(itemView.context)
                     .load(this.avatarUrl)
                     .centerCrop()
@@ -52,6 +64,7 @@ class UserAdapter(private val dataUser: ArrayList<UserResponse>) :
     interface OnItemClickCallBack {
         fun onItemClicked(data: UserResponse)
         fun onItemShared(data: UserResponse)
+        fun onItemFavorite(data: UserResponse)
     }
 
 }

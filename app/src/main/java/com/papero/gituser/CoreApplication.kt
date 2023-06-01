@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.util.Log
+import io.realm.Realm
+import io.realm.RealmConfiguration
 
 class CoreApplication : Application(), Application.ActivityLifecycleCallbacks {
 
@@ -11,10 +13,23 @@ class CoreApplication : Application(), Application.ActivityLifecycleCallbacks {
         private const val TAG = "LifecycleCallbacks"
     }
 
+    private val realmSchemaVersion = 1L
+    private val realmDbPassword = "66b167524b39b89d4a7f1ef4b6ea7e40b0764e5026bfefdae6254bcf5f0d332c"
     override fun onCreate() {
         super.onCreate()
+
+        Realm.init(this)
+        val config = RealmConfiguration.Builder()
+            .name("com.papero.gituser.realmdb")
+            .schemaVersion(realmSchemaVersion)
+            .encryptionKey(realmDbPassword.toByteArray())
+            .deleteRealmIfMigrationNeeded()
+            .build()
+        Realm.setDefaultConfiguration(config)
+
         registerActivityLifecycleCallbacks(this)
     }
+
 
     override fun onActivityCreated(p0: Activity, p1: Bundle?) {
         Log.d(TAG, "onActivityCreated at ${p0.localClassName}")

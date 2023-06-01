@@ -12,6 +12,8 @@
     <string name="label_content_is_empty">%1$s is Empty</string>
     <string name="label_error_network">Your network is offline</string>
     <string name="label_error_exception">Something went wrong</string>
+    <string name="title_home">Home</string>
+    <string name="title_favorite">Favorite</string>
 
     <string-array name="label_tab_exams">
         <item>Follower    %1$s</item>

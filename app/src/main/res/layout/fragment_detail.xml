@@ -231,7 +231,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:visibility="visible"
         android:contentDescription="Tambahkan favorit"
-        app:srcCompat="@drawable/ic_add"/>
+        app:srcCompat="@drawable/behavior_color_favorite"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

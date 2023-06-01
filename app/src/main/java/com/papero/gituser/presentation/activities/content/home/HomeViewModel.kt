@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.papero.gituser.data.remote.UserResponse
+import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.usecase.AllUserUseCase
+import com.papero.gituser.domain.usecase.SaveFavoriteUseCase
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -13,18 +15,20 @@ import io.reactivex.schedulers.Schedulers
 
 class HomeViewModel(
     private val allUserUseCase: AllUserUseCase,
-    private val searchUsernameUseCase: SearchUsernameUseCase
+    private val searchUsernameUseCase: SearchUsernameUseCase,
+    private val saveFavoriteUseCase: SaveFavoriteUseCase
 ) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 
     private val _allDataResult = MutableLiveData<Resource<ArrayList<UserResponse>>>()
-    val allDataResult: LiveData<Resource<ArrayList<UserResponse>>>
-        get() = _allDataResult
+    val allDataResult: LiveData<Resource<ArrayList<UserResponse>>> = _allDataResult
 
     private val _searchResult = MutableLiveData<Resource<ArrayList<UserResponse>>>()
-    val searchResult: LiveData<Resource<ArrayList<UserResponse>>>
-        get() = _searchResult
+    val searchResult: LiveData<Resource<ArrayList<UserResponse>>> = _searchResult
+
+    private val _saveFavorite = MutableLiveData<Resource<String>>()
+    val saveFavorite: LiveData<Resource<String>> = _saveFavorite
 
     fun getAllData() {
         _allDataResult.postValue(Resource.Loading())
@@ -51,6 +55,24 @@ class HomeViewModel(
                 }, { error ->
                     _searchResult.postValue(Resource.Error(error.toString()))
                 })
+        )
+    }
+
+    fun saveFavorite(data: UserResponse) {
+        val toFavorite = Favorite().apply {
+            username = data.username
+            img = data.avatarUrl
+        }
+        compositeDisposable.add(
+            saveFavoriteUseCase.execute(toFavorite)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({response ->
+                    _saveFavorite.postValue(response)
+                },{error ->
+                    _saveFavorite.postValue(Resource.Error(error.message.toString()))
+                })
+
         )
     }
 }

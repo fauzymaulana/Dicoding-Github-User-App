@@ -26,6 +26,7 @@ class FollowFragment : BaseFragment() {
     companion object {
         const val ARG_POSITION = "position"
         const val USERNAME_KEY = "username_key"
+        const val FOLLOW_SLUG = "follow"
     }
 
     private var _binding: FragmentFollowBinding? = null
@@ -75,7 +76,7 @@ class FollowFragment : BaseFragment() {
 
     private fun setupRecyclerView() {
         binding.rvContentFollow.layoutManager = LinearLayoutManager(activity)
-        userAdapter = UserAdapter(lists)
+        userAdapter = UserAdapter(FOLLOW_SLUG, lists)
         binding.rvContentFollow.adapter = userAdapter
         binding.rvContentFollow.itemAnimator = DefaultItemAnimator()
         userAdapter.notifyDataSetChanged()

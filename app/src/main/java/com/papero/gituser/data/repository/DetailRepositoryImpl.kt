@@ -1,17 +1,23 @@
 package com.papero.gituser.data.repository
 
+import android.util.Log
 import com.papero.gituser.data.local.realm.FavoriteRealm
 import com.papero.gituser.data.remote.UserDetail
 import com.papero.gituser.data.remote.UserResponse
+import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.repository.DetailRepository
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.realm.Realm
+import retrofit2.HttpException
 import java.io.IOException
 
 class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRepository {
+
+    private var realm: Realm = Realm.getDefaultInstance()
 
     override fun getDetailUser(username: String): Observable<Resource<UserDetail>> {
         return requestClient.user().getDetailUsers(username)
@@ -62,7 +68,32 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
             .startWith(Resource.Loading())
     }
 
-//    override fun saveUserToRealm(username: String): Observable<Resource<FavoriteRealm>> {
-//        return requestClient
-//    }
+    override fun saveFavorite(favorite: Favorite): Observable<Resource<FavoriteRealm>> {
+        return Observable.create { emitter ->
+            try {
+                realm.executeTransactionAsync ({ db ->
+                    val data = db.where(FavoriteRealm::class.java).equalTo("username", favorite.username).findFirst()
+                    data?.apply {
+                        username = favorite.username
+//                        img = favorite.img
+                    }
+                    db.copyToRealm(data)
+                },{
+                    val data = realm.where(FavoriteRealm::class.java).findAll()
+                    Log.d("TAG", "saveFavorite: $data")
+                },{error ->
+                    Log.d("TAG", "saveFavorite: ${error.message}")
+                })
+            }catch (e: HttpException){
+                emitter.onError(e)
+            }catch (e: IOException){
+                emitter.onError(e)
+            }catch (e: Exception){
+                emitter.onError(e)
+            }finally {
+                emitter.onComplete()
+            }
+        }
+    }
+
 }

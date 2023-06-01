@@ -9,19 +9,24 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayoutMediator
 import com.papero.gituser.R
 import com.papero.gituser.data.repository.DetailRepositoryImpl
+import com.papero.gituser.data.repository.FavoriteRepositoryImpl
 import com.papero.gituser.databinding.FragmentDetailBinding
 import com.papero.gituser.domain.usecase.DetailUserUseCase
+import com.papero.gituser.domain.usecase.SaveFavoriteUseCase
 import com.papero.gituser.presentation.activities.adapter.ContentDetailUserAdapter
 import com.papero.gituser.presentation.activities.content.home.HomeFragment
 import com.papero.gituser.presentation.base.BaseFragment
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
+import io.realm.Realm
 
 class DetailFragment : BaseFragment(), View.OnClickListener {
 
+    private var bottomNav: BottomNavigationView? = null
     private lateinit var detailAdapter: ContentDetailUserAdapter
 
     private var _binding: FragmentDetailBinding? = null
@@ -29,8 +34,10 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
 
     private val requestClient: RequestClient = RequestClient()
     private val detailRepository = DetailRepositoryImpl(requestClient)
+    private val favoriteRepository = FavoriteRepositoryImpl(Realm.getDefaultInstance())
     private val detailUserUseCase = DetailUserUseCase(detailRepository)
-    private val viewModel: DetailViewModel by viewModels { DetailViewModelFactory(detailUserUseCase) }
+    private val saveFavoriteUseCase = SaveFavoriteUseCase(favoriteRepository)
+    private val viewModel: DetailViewModel by viewModels { DetailViewModelFactory(detailUserUseCase, saveFavoriteUseCase) }
 
     private var totalFollowers = 0
     private var totalFollowing = 0
@@ -45,7 +52,7 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        bottomNav = activity?.findViewById(R.id.bottom_nav)
         detailAdapter = ContentDetailUserAdapter(parentFragmentManager, lifecycle)
 
         initListeners()
@@ -117,24 +124,27 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
 
     override fun onStart() {
         super.onStart()
+        bottomNav?.visibility = View.GONE
         binding.placeholderTopContent.isShimmerStarted
     }
 
     override fun onClick(p0: View?) {
         when(p0?.id){
             binding.floatingActionButton.id -> {
-
+                binding.floatingActionButton.setImageResource(R.drawable.ic_favorite_active)
             }
         }
     }
 }
 
 class DetailViewModelFactory(
-    private val detailUserUseCase: DetailUserUseCase
+    private val detailUserUseCase: DetailUserUseCase,
+    private val saveFavoriteUseCase: SaveFavoriteUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return DetailViewModel(
-            detailUserUseCase
+            detailUserUseCase,
+            saveFavoriteUseCase
         ) as T
     }
 }
