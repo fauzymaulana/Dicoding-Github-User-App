@@ -5,28 +5,24 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.papero.gituser.data.local.realm.FavoriteRealm
 import com.papero.gituser.data.remote.UserDetail
-import com.papero.gituser.domain.data.Favorite
+import com.papero.gituser.domain.usecase.DeleteFavoriteUseCase
 import com.papero.gituser.domain.usecase.DetailUserUseCase
 import com.papero.gituser.domain.usecase.GetFavoriteLocalUseCase
 import com.papero.gituser.domain.usecase.SaveFavoriteUseCase
-import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 class DetailViewModel(
-    private val detailUserUseCase: DetailUserUseCase,
-    private val saveFavoriteUseCases: SaveFavoriteUseCases,
-    private val saveFavoriteUseCase: SaveFavoriteUseCase,
-    private val getFavoriteLocalUseCase: GetFavoriteLocalUseCase
+    private val detailUserUseCase: DetailUserUseCase, private val saveFavoriteUseCase: SaveFavoriteUseCase,
+    private val getFavoriteLocalUseCase: GetFavoriteLocalUseCase, private val deleteFavoriteUseCase: DeleteFavoriteUseCase
 ) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 
     private val _detailResult = MutableLiveData<Resource<UserDetail>>()
-    val detailResult: LiveData<Resource<UserDetail>>
-        get() = _detailResult
+    val detailResult: LiveData<Resource<UserDetail>> = _detailResult
 
     private val _saveResult = MutableLiveData<Resource<FavoriteRealm>>()
     val saveResult: LiveData<Resource<FavoriteRealm>> = _saveResult
@@ -37,6 +33,9 @@ class DetailViewModel(
     private val _isSaved = MutableLiveData<Resource<Boolean>>()
     val isSaved: LiveData<Resource<Boolean>> = _isSaved
 
+    private val _isDeleted = MutableLiveData<Resource<String>>()
+    val isDeleted: LiveData<Resource<String>> = _isDeleted
+
     fun getDetailUser(username: String) {
         detailUserUseCase.execute(username)
             .observeOn(AndroidSchedulers.mainThread())
@@ -46,17 +45,6 @@ class DetailViewModel(
             }, { error ->
                 _detailResult.postValue(Resource.Error(error.message.toString()))
             }).isDisposed
-    }
-
-    fun saveFavorites(favorite: Favorite) {
-        saveFavoriteUseCases.execute(favorite)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ value ->
-//                _saveResult.postValue(value)
-            }, { error ->
-                _saveResult.postValue(Resource.Error(error.message.toString()))
-            })
     }
 
     fun saveFavorite(username: String) {
@@ -72,15 +60,28 @@ class DetailViewModel(
         )
     }
 
-    fun getFavoriteLocal(username: String){
+    fun getFavoriteLocal(username: String) {
         compositeDisposable.add(
             getFavoriteLocalUseCase.execute(username)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({value ->
+                .subscribe({ value ->
                     _isSaved.postValue(value)
-                },{error ->
+                }, { error ->
                     _isSaved.postValue(Resource.Error(error.toString()))
+                })
+        )
+    }
+
+    fun deleteFavorite(username: String) {
+        compositeDisposable.add(
+            deleteFavoriteUseCase.execute(username)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ result ->
+                    _isDeleted.postValue(result)
+                }, { error ->
+                    _isDeleted.postValue(Resource.Error(error.message.toString()))
                 })
         )
     }

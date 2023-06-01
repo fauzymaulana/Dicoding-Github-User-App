@@ -9,8 +9,8 @@ import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.databinding.ItemUserBinding
 import com.papero.gituser.domain.data.Favorite
 
-class UserAdapter(private val slug: String = "", private val dataUser: ArrayList<UserResponse>) :
-    RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+class UserAdapter<T: Any>(private val slug: String = "", private var dataUser: ArrayList<T>) :
+    RecyclerView.Adapter<UserAdapter<T>.UserViewHolder>() {
 
     private lateinit var onItemClickDetail: OnItemClickCallBack
     private lateinit var onItemClickShare: OnItemClickCallBack
@@ -24,7 +24,7 @@ class UserAdapter(private val slug: String = "", private val dataUser: ArrayList
 
     inner class UserViewHolder(val binding: ItemUserBinding) : RecyclerView.ViewHolder(binding.root)
 
-    fun setDataUser(items: List<UserResponse>) {
+    fun setDataUser(items: List<T>) {
         dataUser.clear()
         dataUser.addAll(items)
         notifyDataSetChanged()
@@ -38,26 +38,37 @@ class UserAdapter(private val slug: String = "", private val dataUser: ArrayList
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         with(holder) {
             with(dataUser[position]) {
+                var avatar = ""
+                var username = ""
+                var type = ""
+
                 when(slug){
-                    "follow" -> {
-                        binding.imgDetail.visibility = View.GONE
+                    "follow" -> { binding.imgDetail.visibility = View.GONE }
+                    else -> { binding.imgDetail.visibility = View.VISIBLE }
+                }
+                when(this){
+                    is UserResponse -> {
+                        avatar = this.avatarUrl.toString()
+                        username = this.username.toString()
+                        type = this.type.toString()
+
+                        itemView.setOnClickListener { onItemClickDetail.onItemClicked(this) }
                     }
-                    else -> {
-                        binding.imgDetail.visibility = View.VISIBLE
-//                        binding.checkedFavorite.setOnClickListener { onItemClickFavorite.onItemFavorite(this) }
+                    is Favorite -> {
+                        avatar = this.img.toString()
+                        username = this.username.toString()
+                        type = if (this.type != null) this.type!! else ""
+
+                        itemView.setOnClickListener { onItemClickDetail.onItemClicked(this) }
                     }
                 }
-
-//                binding.checkedFavorite.isChecked = this.status
-
                 Glide.with(itemView.context)
-                    .load(this.avatarUrl)
+                    .load(avatar)
                     .centerCrop()
                     .into(binding.imgUser)
 
-                binding.txtName.text = this.username
-                binding.txtType.text = this.type
-                itemView.setOnClickListener { onItemClickDetail.onItemClicked(this) }
+                binding.txtName.text = username
+                binding.txtType.text = type
             }
 
         }
@@ -66,9 +77,8 @@ class UserAdapter(private val slug: String = "", private val dataUser: ArrayList
     override fun getItemCount(): Int = dataUser.size
 
     interface OnItemClickCallBack {
-        fun onItemClicked(data: UserResponse)
-        fun onItemShared(data: UserResponse)
-        fun onItemFavorite(data: UserResponse)
+        fun <T: Any> onItemClicked(data: T)
+        fun <T: Any>onItemFavorite(data: T)
     }
 
 }

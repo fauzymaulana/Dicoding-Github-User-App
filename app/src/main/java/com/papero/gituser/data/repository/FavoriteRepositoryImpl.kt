@@ -14,7 +14,7 @@ import io.realm.RealmResults
 import retrofit2.HttpException
 import java.io.IOException
 
-class FavoriteRepositoryImpl(): FavoriteRepository {
+class FavoriteRepositoryImpl(private val realm: Realm): FavoriteRepository {
 
     override fun saveFavorite(account: Favorite): Observable<Resource<String>> {
         return Observable.create { emitter ->
@@ -67,19 +67,29 @@ class FavoriteRepositoryImpl(): FavoriteRepository {
         }
     }
 
-    override fun getFavorites(): Observable<Resource<ArrayList<FavoriteRealm>>> {
+    override fun getFavorites(): Observable<Resource<ArrayList<Favorite>>> {
         return Observable.create { emitter ->
             val realm = Realm.getDefaultInstance()
             try {
                 realm.executeTransaction { db ->
                     val favoriteLocal = db.where(FavoriteRealm::class.java).findAll()
-                    val favorites = db.copyToRealm(favoriteLocal)
-                    emitter.onNext(Resource.Success(ArrayList(favorites)))
+                    val objFav = ArrayList<Favorite>()
+                    favoriteLocal.forEach { item ->
+                        val fav = Favorite().apply {
+                            this.username = item.username
+                            this.img = item.img
+                            this.status = item.status
+                            this.type = item.type
+                        }
+                        objFav.add(fav)
+                    }
+
+                    emitter.onNext(Resource.Success(objFav))
                 }
             }catch (e: Exception){
                 emitter.onError(e)
             } finally {
-                realm.close()
+//                realm.close()
                 emitter.onComplete()
             }
         }

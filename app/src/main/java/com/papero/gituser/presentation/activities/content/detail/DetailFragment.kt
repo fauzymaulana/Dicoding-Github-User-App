@@ -15,11 +15,8 @@ import com.papero.gituser.R
 import com.papero.gituser.data.repository.DetailRepositoryImpl
 import com.papero.gituser.data.repository.FavoriteRepositoryImpl
 import com.papero.gituser.databinding.FragmentDetailBinding
-import com.papero.gituser.domain.usecase.DetailUserUseCase
-import com.papero.gituser.domain.usecase.GetFavoriteLocalUseCase
-import com.papero.gituser.domain.usecase.SaveFavoriteUseCase
-import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
-import com.papero.gituser.presentation.activities.adapter.ContentDetailUserAdapter
+import com.papero.gituser.domain.usecase.*
+import com.papero.gituser.presentation.activities.adapter.TabDetailAdapter
 import com.papero.gituser.presentation.activities.content.home.HomeFragment
 import com.papero.gituser.presentation.base.BaseFragment
 import com.papero.gituser.utilities.network.RequestClient
@@ -29,23 +26,24 @@ import io.realm.Realm
 class DetailFragment : BaseFragment(), View.OnClickListener {
 
     private var bottomNav: BottomNavigationView? = null
-    private lateinit var detailAdapter: ContentDetailUserAdapter
+    private lateinit var detailAdapter: TabDetailAdapter
 
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
 
     private val requestClient: RequestClient = RequestClient()
     private val detailRepository = DetailRepositoryImpl(requestClient)
-    private val favoriteRepository = FavoriteRepositoryImpl()
     private val detailUserUseCase = DetailUserUseCase(detailRepository)
-    private val saveFavoriteUseCases = SaveFavoriteUseCases(favoriteRepository)
     private val saveFavUseCase = SaveFavoriteUseCase(detailRepository)
     private val getFavoriteLocalUseCase = GetFavoriteLocalUseCase(detailRepository)
-    private val viewModel: DetailViewModel by viewModels { DetailViewModelFactory(detailUserUseCase, saveFavoriteUseCases, saveFavUseCase, getFavoriteLocalUseCase) }
+    private val deleteUserUseCase = DeleteFavoriteUseCase(detailRepository)
+
+    private val viewModel: DetailViewModel by viewModels { DetailViewModelFactory(detailUserUseCase, saveFavUseCase, getFavoriteLocalUseCase, deleteUserUseCase) }
 
     private var totalFollowers = 0
     private var totalFollowing = 0
     private var username: String? = null
+    private var isSaved: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +56,7 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         bottomNav = activity?.findViewById(R.id.bottom_nav)
-        detailAdapter = ContentDetailUserAdapter(parentFragmentManager, lifecycle)
+        detailAdapter = TabDetailAdapter(parentFragmentManager, lifecycle)
 
         initListeners()
         getSelectedUser()
@@ -74,8 +72,10 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
                 is Resource.Loading -> {}
                 is Resource.Success -> {
                     if (state.data == true){
+                        isSaved = true
                         binding.fabFavorite.setImageResource(R.drawable.ic_favorite_active)
                     }else{
+                        isSaved = false
                         binding.fabFavorite.setImageResource(R.drawable.ic_favorite_border)
                     }
                 }
@@ -87,9 +87,7 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
         viewModel.detailResult.observe(viewLifecycleOwner){resource ->
             val data = resource.data
             when(resource){
-                is Resource.Loading -> {
-                    binding.placeholderTopContent.isShimmerStarted
-                }
+                is Resource.Loading -> { binding.placeholderTopContent.isShimmerStarted }
                 is Resource.Success -> {
 
                     if (data?.avatarUrl != null){
@@ -97,6 +95,7 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
                             .load(resource.data.avatarUrl)
                             .centerCrop()
                             .into(binding.profileImage)
+
                         binding.txtJob.isSelected = true
                         binding.txtLocation.isSelected = true
                         binding.txtName.text = (if (data.name == null) getString(R.string.label_content_is_empty, "Name") else  data.name).toString()
@@ -157,34 +156,48 @@ class DetailFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        bottomNav?.visibility = View.GONE
-        binding.placeholderTopContent.isShimmerStarted
+    private fun deleteFavorite(username: String) {
+        viewModel.deleteFavorite(username)
+        viewModel.isDeleted.observe(viewLifecycleOwner){resource ->
+            when(resource){
+                is Resource.Error -> Toast.makeText(context, resource.message, Toast.LENGTH_SHORT).show()
+                is Resource.Loading -> {}
+                is Resource.Success -> Toast.makeText(context, resource.data.toString(), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onClick(p0: View?) {
         when(p0?.id){
             binding.fabFavorite.id -> {
-                saveFavorite(username.toString())
-                binding.fabFavorite.setImageResource(R.drawable.ic_favorite_active)
+                val iconFab = if (isSaved){
+                    deleteFavorite(username.toString())
+                    R.drawable.ic_favorite_border
+                }else{
+                    saveFavorite(username.toString())
+                    R.drawable.ic_favorite_active
+                }
+                binding.fabFavorite.setImageResource(iconFab)
+                isSaved = !isSaved
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        bottomNav?.visibility = View.GONE
+        binding.placeholderTopContent.isShimmerStarted
     }
 }
 
 class DetailViewModelFactory(
-    private val detailUserUseCase: DetailUserUseCase,
-    private val saveFavoriteUseCases: SaveFavoriteUseCases,
-    private val saveFavoriteUseCase: SaveFavoriteUseCase,
-    private val getFavoriteLocalUseCase: GetFavoriteLocalUseCase
+    private val detailUserUseCase: DetailUserUseCase, private val saveFavoriteUseCase: SaveFavoriteUseCase,
+    private val getFavoriteLocalUseCase: GetFavoriteLocalUseCase, private val deleteFavoriteUseCase: DeleteFavoriteUseCase
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return DetailViewModel(
-            detailUserUseCase,
-            saveFavoriteUseCases,
-            saveFavoriteUseCase,
-            getFavoriteLocalUseCase
+            detailUserUseCase = detailUserUseCase, saveFavoriteUseCase = saveFavoriteUseCase,
+            getFavoriteLocalUseCase = getFavoriteLocalUseCase, deleteFavoriteUseCase = deleteFavoriteUseCase
         ) as T
     }
 }

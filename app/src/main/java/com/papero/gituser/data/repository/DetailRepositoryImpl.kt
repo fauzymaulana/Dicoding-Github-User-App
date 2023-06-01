@@ -15,7 +15,6 @@ import java.io.IOException
 
 class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRepository {
 
-//    private var realm: Realm = Realm.getDefaultInstance()
 
     override fun getDetailUser(username: String): Observable<Resource<UserDetail>> {
         return requestClient.user().getDetailUsers(username)
@@ -35,7 +34,6 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
                         Resource.Error(it.message.toString())
                     }
                 }
-
             }
             .startWith(Resource.Loading())
     }
@@ -96,19 +94,10 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
                         val saveFav = db.createObject(FavoriteRealm::class.java)
                         saveFav.username = value.username
                         saveFav.img = value.avatarUrl
+                        saveFav.type = value.type
                         saveFav.status = true
                     }
-
-                    val d = db.where(FavoriteRealm::class.java).findAll()
-                    Log.d("DETAIL", "saveFavorite: $d")
                 }
-
-//                    , {
-//                    val d = realm.where(FavoriteRealm::class.java).findAll()
-//                    Log.d("DETAIL", "saveFavorite: $d")
-//                }, { error ->
-//                    Log.d("DETAIL", "error ${error.message}")
-//                })
                 realm.close()
                 Observable.just(Resource.Success("$username berhasil disimpan"))
             }
@@ -142,6 +131,24 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
                 emitter.onError(e)
             } finally {
               emitter.onComplete()
+            }
+        }
+    }
+
+    override fun deleteFavorite(username: String): Observable<Resource<String>> {
+        return Observable.create { emitter ->
+            val realm = Realm.getDefaultInstance()
+            try {
+                realm.executeTransaction { db ->
+                    val findFav = db.where(FavoriteRealm::class.java).equalTo("username", username).findFirst()
+                    findFav?.deleteFromRealm()
+                    emitter.onNext(Resource.Success("Berhasil menghapus $username dari daftar disukai"))
+                }
+            }catch (e: Exception){
+                emitter.onError(e)
+            } finally {
+                realm.close()
+                emitter.onComplete()
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.papero.gituser.data.local.realm.FavoriteRealm
+import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.usecase.GetFavoritesLocalUseCase
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,8 +15,8 @@ class FavoriteViewModel(private val getFavorites: GetFavoritesLocalUseCase) : Vi
 
     private val compositeDisposable = CompositeDisposable()
 
-    private val _favorites = MutableLiveData<Resource<ArrayList<FavoriteRealm>>>()
-    val favorites: LiveData<Resource<ArrayList<FavoriteRealm>>> = _favorites
+    private val _favorites = MutableLiveData<Resource<ArrayList<Favorite>>>()
+    val favorites: LiveData<Resource<ArrayList<Favorite>>> = _favorites
 
 
     fun getFavorites(){

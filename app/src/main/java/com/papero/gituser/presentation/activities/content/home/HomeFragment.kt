@@ -31,7 +31,7 @@ import io.realm.Realm
 class HomeFragment : BaseFragment() {
 
     private var bottomNav: BottomNavigationView? = null
-    private lateinit var userAdapter: UserAdapter
+    private lateinit var userAdapter: UserAdapter<UserResponse>
     private var searchView: SearchView? = null
 
     private var _binding: FragmentHomeBinding? = null
@@ -39,7 +39,8 @@ class HomeFragment : BaseFragment() {
 
     private val requestClient: RequestClient = RequestClient()
     private val homeRepository = HomeRepositoryImpl(requestClient)
-    private val favRepository = FavoriteRepositoryImpl()
+    private val realm = Realm.getDefaultInstance()
+    private val favRepository = FavoriteRepositoryImpl(realm)
     private val allDatUseCase: AllUserUseCase = AllUserUseCase(homeRepository)
     private val searchUsernameUseCase = SearchUsernameUseCase(homeRepository)
     private val saveFavUseCase= SaveFavoriteUseCases(favRepository)
@@ -169,9 +170,8 @@ class HomeFragment : BaseFragment() {
         userAdapter.notifyDataSetChanged()
         userAdapter.setOnItemClickCallback(object :
             UserAdapter.OnItemClickCallBack {
-            override fun onItemClicked(data: UserResponse) = selectedUser(data)
-            override fun onItemFavorite(data: UserResponse) = saveFavorite(data)
-            override fun onItemShared(data: UserResponse) {}
+            override fun <T: Any> onItemFavorite(data: T) = saveFavorite(data as UserResponse)
+            override fun <T : Any> onItemClicked(data: T) = selectedUser(data as UserResponse)
         })
     }
 

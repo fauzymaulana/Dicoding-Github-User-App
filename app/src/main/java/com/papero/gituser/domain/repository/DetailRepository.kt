@@ -14,6 +14,6 @@ interface DetailRepository {
     fun getFollowing(username: String): Observable<Resource<ArrayList<UserResponse>>>
 
     fun saveFavorite(username: String): Observable<Resource<String>>
-
     fun getFavorite(username: String): Observable<Resource<Boolean>>
+    fun deleteFavorite(username: String): Observable<Resource<String>>
 }

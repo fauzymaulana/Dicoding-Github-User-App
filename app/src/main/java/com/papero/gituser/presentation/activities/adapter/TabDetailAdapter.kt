@@ -7,7 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.papero.gituser.presentation.activities.content.detail.content.FollowFragment
 
-class ContentDetailUserAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle) {
+class TabDetailAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle) {
     var username: String = ""
 
     override fun getItemCount(): Int = 2

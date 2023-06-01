@@ -32,7 +32,7 @@ class FollowFragment : BaseFragment() {
     private var _binding: FragmentFollowBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var userAdapter: UserAdapter
+    private lateinit var userAdapter: UserAdapter<UserResponse>
     private val lists = ArrayList<UserResponse>()
     private val requestClient: RequestClient = RequestClient()
     private val detailRepository = DetailRepositoryImpl(requestClient)
@@ -80,11 +80,6 @@ class FollowFragment : BaseFragment() {
         binding.rvContentFollow.adapter = userAdapter
         binding.rvContentFollow.itemAnimator = DefaultItemAnimator()
         userAdapter.notifyDataSetChanged()
-        userAdapter.setOnItemClickCallback(object : UserAdapter.OnItemClickCallBack{
-            override fun onItemClicked(data: UserResponse) {}
-            override fun onItemShared(data: UserResponse) {}
-            override fun onItemFavorite(data: UserResponse) {}
-        })
     }
 
     private fun showFollowing(){

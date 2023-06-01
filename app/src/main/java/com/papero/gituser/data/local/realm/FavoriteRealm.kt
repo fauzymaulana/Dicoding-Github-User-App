@@ -8,4 +8,5 @@ open class FavoriteRealm: RealmObject() {
     var username: String? = null
     var img: String? = null
     var status: Boolean = false
+    var type: String? = null
 }
