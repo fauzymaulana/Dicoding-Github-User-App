@@ -1,6 +1,5 @@
 package com.papero.gituser.data.repository
 
-import android.util.Log
 import com.papero.gituser.data.local.realm.FavoriteRealm
 import com.papero.gituser.data.remote.UserDetail
 import com.papero.gituser.data.remote.UserResponse

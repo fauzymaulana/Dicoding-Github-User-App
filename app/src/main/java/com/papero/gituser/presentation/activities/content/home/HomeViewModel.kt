@@ -5,9 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.papero.gituser.data.remote.UserResponse
-import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.usecase.AllUserUseCase
-import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase
 import com.papero.gituser.utilities.datastore.SettingPrefs
 import com.papero.gituser.utilities.stateHandler.Resource

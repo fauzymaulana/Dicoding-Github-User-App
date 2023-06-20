@@ -1,10 +1,6 @@
 package com.papero.gituser.presentation.activities
 
 import android.os.Bundle
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -12,8 +8,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 import com.papero.gituser.R
 import com.papero.gituser.databinding.ActivityMainBinding
 import com.papero.gituser.presentation.base.BaseActivity
-import com.papero.gituser.utilities.datastore.SettingPrefs
-import com.papero.gituser.utilities.datastore.dataStore
 
 class MainActivity : BaseActivity () {
 

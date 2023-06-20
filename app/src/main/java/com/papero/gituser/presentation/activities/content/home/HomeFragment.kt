@@ -1,9 +1,7 @@
 package com.papero.gituser.presentation.activities.content.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
@@ -16,11 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papero.gituser.R
 import com.papero.gituser.data.remote.UserResponse
-import com.papero.gituser.data.repository.FavoriteRepositoryImpl
 import com.papero.gituser.data.repository.HomeRepositoryImpl
 import com.papero.gituser.databinding.FragmentHomeBinding
 import com.papero.gituser.domain.usecase.AllUserUseCase
-import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase
 import com.papero.gituser.presentation.activities.adapter.UserAdapter
 import com.papero.gituser.presentation.base.BaseFragment
@@ -28,7 +24,6 @@ import com.papero.gituser.utilities.datastore.SettingPrefs
 import com.papero.gituser.utilities.datastore.dataStore
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
-import io.realm.Realm
 
 
 class HomeFragment : BaseFragment() {
