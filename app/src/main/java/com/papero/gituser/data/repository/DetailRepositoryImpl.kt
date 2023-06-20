@@ -107,11 +107,9 @@ class DetailRepositoryImpl(private var requestClient: RequestClient) : DetailRep
                         Resource.Error("Your network is offline")
                     }
                     is Exception -> {
-                        Log.d("EXCEPTION", "saveFavorite: ${error.message.toString()}")
                         Resource.Error("Something went wrong")
                     }
                     else -> {
-                        Log.d("ELSE", "saveFavorite: ${error.message.toString()}")
                         Resource.Error(error.message.toString())
                     }
                 }

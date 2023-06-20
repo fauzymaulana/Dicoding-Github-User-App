@@ -12,11 +12,8 @@
     <style name="TabLayout" parent="Widget.Material3.TabLayout">
         <item name="tabMode">fixed</item>
         <item name="tabIndicatorFullWidth">true</item>
-        <item name="tabIndicatorColor">@color/color_border_bg_active</item>
-        <item name="tabSelectedTextColor">@color/color_border_bg_active</item>
         <item name="tabRippleColor">@color/label_hint_searchbar</item>
         <item name="tabTextColor">@color/label_hint_searchbar</item>
-        <item name="android:backgroundTint">@color/white</item>
         <item name="tabIndicatorAnimationMode">elastic</item>
     </style>
 </resources>

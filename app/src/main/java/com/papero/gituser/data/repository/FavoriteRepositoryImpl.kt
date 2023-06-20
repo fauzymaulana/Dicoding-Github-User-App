@@ -1,16 +1,12 @@
 package com.papero.gituser.data.repository
 
 import android.util.Log
-import android.widget.Toast
 import com.papero.gituser.data.local.realm.FavoriteRealm
-import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.repository.FavoriteRepository
-import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.Observable
 import io.realm.Realm
-import io.realm.RealmResults
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -20,9 +16,6 @@ class FavoriteRepositoryImpl(private val realm: Realm): FavoriteRepository {
         return Observable.create { emitter ->
             try {
                 val realm = Realm.getDefaultInstance()
-                val realmThread = Thread.currentThread().name
-                Log.d("Realm Thread Rpo", realmThread ?: "Unknown")
-
                 realm.executeTransaction { db ->
 
                     val data = db.where(FavoriteRealm::class.java).equalTo("username", account.username).findFirst()
@@ -34,27 +27,9 @@ class FavoriteRepositoryImpl(private val realm: Realm): FavoriteRepository {
                         emitter.onNext(Resource.Success("${account.username} berhasil disimpan"))
 
                         val d = db.where(FavoriteRealm::class.java).findAll()
-                        Log.d("NSKNSFS", "DATA ${d}")
                     }
                 }
 
-//                realm.executeTransactionAsync ({ db ->
-//                    val data = db.where(FavoriteRealm::class.java).equalTo("username", account.username).findFirst()
-//                    data?.apply {
-//                        username = data.username
-//                        img = data.img
-//                        status = true
-//                    }
-//                    if (data != null) {
-//                    db.copyToRealm(data)
-//                        emitter.onNext(Resource.Success("${data.username} berhasil disimpan"))
-//                    }
-//                },{
-//                    val data = realm.where(FavoriteRealm::class.java).findAll()
-//                    Log.d("TAG", "saveFavorite: $data")
-//                },{error ->
-//                    Log.d("TAG", "saveFavorite: ${error.message}")
-//                })
             }catch (e: HttpException){
                 emitter.onError(e)
             }catch (e: IOException){
@@ -89,7 +64,6 @@ class FavoriteRepositoryImpl(private val realm: Realm): FavoriteRepository {
             }catch (e: Exception){
                 emitter.onError(e)
             } finally {
-//                realm.close()
                 emitter.onComplete()
             }
         }

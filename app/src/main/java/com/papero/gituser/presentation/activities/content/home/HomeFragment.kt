@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
@@ -23,6 +24,8 @@ import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase
 import com.papero.gituser.presentation.activities.adapter.UserAdapter
 import com.papero.gituser.presentation.base.BaseFragment
+import com.papero.gituser.utilities.datastore.SettingPrefs
+import com.papero.gituser.utilities.datastore.dataStore
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.realm.Realm
@@ -34,22 +37,23 @@ class HomeFragment : BaseFragment() {
     private lateinit var userAdapter: UserAdapter<UserResponse>
     private var searchView: SearchView? = null
 
+    private lateinit var pref: SettingPrefs
+
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     private val requestClient: RequestClient = RequestClient()
+
     private val homeRepository = HomeRepositoryImpl(requestClient)
-    private val realm = Realm.getDefaultInstance()
-    private val favRepository = FavoriteRepositoryImpl(realm)
+
     private val allDatUseCase: AllUserUseCase = AllUserUseCase(homeRepository)
     private val searchUsernameUseCase = SearchUsernameUseCase(homeRepository)
-    private val saveFavUseCase= SaveFavoriteUseCases(favRepository)
 
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModelFactory(
-            allDatUseCase,
-            searchUsernameUseCase,
-            saveFavUseCase
+            allDatUseCase = allDatUseCase,
+            searchUsernameUseCase = searchUsernameUseCase,
+            sharedPref = pref
         )
     }
 
@@ -63,6 +67,7 @@ class HomeFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        pref = SettingPrefs.getInstance(requireActivity().application.dataStore)
         bottomNav = activity?.findViewById(R.id.bottom_nav)
         (activity as AppCompatActivity).setSupportActionBar(binding.contentToolbar.toolbar)
         viewModel.getAllData()
@@ -158,6 +163,10 @@ class HomeFragment : BaseFragment() {
             R.id.search -> {
                 searchByUsername()
             }
+
+            R.id.settings  -> {
+                view?.findNavController()?.navigate(R.id.action_homeFragment_to_settingsFragment)
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -170,26 +179,9 @@ class HomeFragment : BaseFragment() {
         userAdapter.notifyDataSetChanged()
         userAdapter.setOnItemClickCallback(object :
             UserAdapter.OnItemClickCallBack {
-            override fun <T: Any> onItemFavorite(data: T) = saveFavorite(data as UserResponse)
+            override fun <T: Any> onItemFavorite(data: T) {}
             override fun <T : Any> onItemClicked(data: T) = selectedUser(data as UserResponse)
         })
-    }
-
-    private fun saveFavorite(data: UserResponse) {
-        viewModel.saveFavorite(data)
-        viewModel.saveFavorite.observe(viewLifecycleOwner){resource ->
-            val message = when(resource){
-                is Resource.Error -> resource.message.toString()
-                is Resource.Loading -> ""
-                is Resource.Success -> {
-//                    checkFavorite?.isChecked = true
-                    resource.data.toString()
-                }
-            }
-            Log.d("TAG", "saveFavorite: $message")
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
-
     }
 
     private fun selectedUser(username: UserResponse) {
@@ -202,6 +194,18 @@ class HomeFragment : BaseFragment() {
         super.onStart()
         bottomNav?.visibility = View.VISIBLE
         binding.placeholderRoot.isShimmerStarted
+        getTheme()
+    }
+
+    private fun getTheme() {
+        viewModel.getTheme().observe(viewLifecycleOwner){isDarkModeActive: Boolean ->
+            if (isDarkModeActive){
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            else{
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -217,13 +221,13 @@ class HomeFragment : BaseFragment() {
 class HomeViewModelFactory(
     private val allDatUseCase: AllUserUseCase,
     private val searchUsernameUseCase: SearchUsernameUseCase,
-    private val saveFavoriteUseCases: SaveFavoriteUseCases
+    private val sharedPref: SettingPrefs
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomeViewModel(
-            allDatUseCase,
-            searchUsernameUseCase,
-            saveFavoriteUseCases
+            allUserUseCase = allDatUseCase,
+            searchUsernameUseCase = searchUsernameUseCase,
+            sharedPref = sharedPref
         ) as T
     }
 }

@@ -70,7 +70,6 @@ class UserAdapter<T: Any>(private val slug: String = "", private var dataUser: A
                 binding.txtName.text = username
                 binding.txtType.text = type
             }
-
         }
     }
 
@@ -80,5 +79,4 @@ class UserAdapter<T: Any>(private val slug: String = "", private var dataUser: A
         fun <T: Any> onItemClicked(data: T)
         fun <T: Any>onItemFavorite(data: T)
     }
-
 }

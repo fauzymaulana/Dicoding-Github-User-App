@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.DicodingGithubUserApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimary">@color/color_secondary</item>
         <item name="colorPrimaryVariant">@color/black_light</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
@@ -11,11 +11,18 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="tabIndicatorColor">@color/color_icon</item>
+        <item name="tabSelectedTextColor">@color/color_icon</item>
         <!-- Customize your theme here. -->
     </style>
 
     <style name="Toolbar" parent="Theme.DicodingGithubUserApp">
-        <item name="android:statusBarColor">@color/black_light</item>
-        <item name="android:background">@color/black_light</item>
+        <item name="android:statusBarColor">@color/color_secondary_light</item>
+        <item name="android:background">@color/color_secondary_light</item>
+    </style>
+
+    <style name="TabLayout." parent="Theme.DicodingGithubUserApp">
+        <item name="tabIndicatorColor">@color/color_icon</item>
+        <item name="tabSelectedTextColor">@color/color_icon</item>
     </style>
 </resources>

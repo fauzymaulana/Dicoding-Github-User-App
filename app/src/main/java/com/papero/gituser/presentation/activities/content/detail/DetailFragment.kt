@@ -13,15 +13,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.tabs.TabLayoutMediator
 import com.papero.gituser.R
 import com.papero.gituser.data.repository.DetailRepositoryImpl
-import com.papero.gituser.data.repository.FavoriteRepositoryImpl
 import com.papero.gituser.databinding.FragmentDetailBinding
-import com.papero.gituser.domain.usecase.*
+import com.papero.gituser.domain.usecase.DeleteFavoriteUseCase
+import com.papero.gituser.domain.usecase.DetailUserUseCase
+import com.papero.gituser.domain.usecase.GetFavoriteLocalUseCase
+import com.papero.gituser.domain.usecase.SaveFavoriteUseCase
 import com.papero.gituser.presentation.activities.adapter.TabDetailAdapter
 import com.papero.gituser.presentation.activities.content.home.HomeFragment
 import com.papero.gituser.presentation.base.BaseFragment
 import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
-import io.realm.Realm
 
 class DetailFragment : BaseFragment(), View.OnClickListener {
 

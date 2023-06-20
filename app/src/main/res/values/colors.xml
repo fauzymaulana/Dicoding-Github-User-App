@@ -12,6 +12,7 @@
     <color name="black">#FF000000</color>
     <color name="black_light">#42000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="color_tab_layout">#FFFFFF</color>
 
     <color name="color_error">#F82626</color>
     <color name="color_container_coin">#F5F2F2</color>
@@ -32,5 +33,6 @@
     <color name="color_placeholder_dark">#C4C4C4</color>
     <color name="color_placeholder_light">#DDDDDD</color>
     <color name="color_border_bg_active">#005580</color>
+    <color name="color_icon">#03BAFE</color>
 
 </resources>

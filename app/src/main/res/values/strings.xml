@@ -14,6 +14,8 @@
     <string name="label_error_exception">Something went wrong</string>
     <string name="title_home">Home</string>
     <string name="title_favorite">Favorite</string>
+    <string name="label_setting">Setting</string>
+    <string name="label_data_is_empty">Data masih kosong</string>
 
     <string-array name="label_tab_exams">
         <item>Follower    %1$s</item>

@@ -6,13 +6,11 @@
         android:icon="@drawable/ic_search"
         android:title="@string/label_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="collapseActionView|ifRoom" />
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_setting"
+        android:title="@string/label_setting"
         app:showAsAction="collapseActionView|always" />
-    <group android:menuCategory="container">
-        <item android:id="@+id/menu1"
-            android:title="@string/label_menu_1"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/menu2"
-            android:title="@string/label_menu_2" />
-    </group>
+
 </menu>

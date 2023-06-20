@@ -7,6 +7,7 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         style="@style/TabLayout"
+        android:theme="@style/TabLayout."
         android:elevation="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

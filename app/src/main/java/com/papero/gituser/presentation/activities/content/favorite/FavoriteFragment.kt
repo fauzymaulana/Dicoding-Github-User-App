@@ -1,30 +1,25 @@
 package com.papero.gituser.presentation.activities.content.favorite
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papero.gituser.R
-import com.papero.gituser.data.local.realm.FavoriteRealm
-import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.data.repository.FavoriteRepositoryImpl
 import com.papero.gituser.databinding.FragmentFavoriteBinding
 import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.usecase.GetFavoritesLocalUseCase
 import com.papero.gituser.presentation.activities.adapter.UserAdapter
 import com.papero.gituser.presentation.base.BaseFragment
-import com.papero.gituser.utilities.network.RequestClient
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.realm.Realm
-import java.util.ArrayList
 
 class FavoriteFragment : BaseFragment() {
 
@@ -63,7 +58,7 @@ class FavoriteFragment : BaseFragment() {
                         binding.txtisEmpty.visibility = View.VISIBLE
                         binding.rvFavorite.visibility = View.GONE
                         binding.placeholderRoot.visibility = View.GONE
-                        binding.txtisEmpty.text = "Data masih kosong"
+                        binding.txtisEmpty.text = getString(R.string.label_data_is_empty)
                     }else{
                         binding.txtisEmpty.visibility = View.GONE
                         binding.placeholderRoot.visibility = View.GONE

@@ -3,11 +3,13 @@ package com.papero.gituser.presentation.activities.content.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import com.papero.gituser.data.remote.UserResponse
 import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.usecase.AllUserUseCase
 import com.papero.gituser.domain.usecase.SaveFavoriteUseCases
 import com.papero.gituser.domain.usecase.SearchUsernameUseCase
+import com.papero.gituser.utilities.datastore.SettingPrefs
 import com.papero.gituser.utilities.stateHandler.Resource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,7 +18,7 @@ import io.reactivex.schedulers.Schedulers
 class HomeViewModel(
     private val allUserUseCase: AllUserUseCase,
     private val searchUsernameUseCase: SearchUsernameUseCase,
-    private val saveFavoriteUseCases: SaveFavoriteUseCases
+    private val sharedPref: SettingPrefs
 ) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
@@ -58,21 +60,7 @@ class HomeViewModel(
         )
     }
 
-    fun saveFavorite(data: UserResponse) {
-        val toFavorite = Favorite().apply {
-            username = data.username
-            img = data.avatarUrl
-        }
-        compositeDisposable.add(
-            saveFavoriteUseCases.execute(toFavorite)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({response ->
-                    _saveFavorite.postValue(response)
-                },{error ->
-                    _saveFavorite.postValue(Resource.Error(error.message.toString()))
-                })
-
-        )
+    fun getTheme(): LiveData<Boolean> {
+        return sharedPref.getThemeSetting().asLiveData()
     }
 }

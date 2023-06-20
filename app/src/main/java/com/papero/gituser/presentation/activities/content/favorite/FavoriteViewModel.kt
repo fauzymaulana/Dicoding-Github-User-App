@@ -3,7 +3,6 @@ package com.papero.gituser.presentation.activities.content.favorite
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.papero.gituser.data.local.realm.FavoriteRealm
 import com.papero.gituser.domain.data.Favorite
 import com.papero.gituser.domain.usecase.GetFavoritesLocalUseCase
 import com.papero.gituser.utilities.stateHandler.Resource
